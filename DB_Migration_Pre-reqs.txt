@@ -1,0 +1,210 @@
+user: oracle
+
+ETMHCPRD_DG
+ETMHCPRD_LOG_DG
+##-----------------------------------##
+
+DBUNQ_NAME=dr4mes
+DB_HOME=/u01/app/oracle/product/19.3.0.0/dbee_1
+DB_SID=dr4mes1
+DB_SID_NODE_NAME=usatllsorarac01
+ASM_INST=+ASM1
+DB_SYS_PSWD='ZYrzi?fO4g5y0jK'
+DB_CREATE_FILE_DEST='+DR4MES_DG'
+DB_CREATE_ONLINE_LOG_DEST_1='+DR4MES_DG'
+DB_CREATE_ONLINE_LOG_DEST_2='+ORAATL1S_ARCH_DG'
+DB_RECOVERY_FILE_DEST_SIZE=0
+DB_RECOVERY_FILE_DEST=
+LOG_ARCHIVE_DEST='+ORAATL1S_ARCH_DG'
+
+##----------------------------------##
+
+INIT_PFILE_LOC=$DB_HOME/dbs/init${DB_SID}.ora
+
+1)  Add database entry in srvctl.
+
+$DB_HOME/bin/srvctl add database -d $DBUNQ_NAME -o $DB_HOME
+
+2) $DB_HOME/bin/srvctl add instance -d $DBUNQ_NAME -i $DB_SID -n $DB_SID_NODE_NAME	# for RAC database1) create directory 
+
+mkdir -p /u01/app/oracle/admin/${DBUNQ_NAME}/adump
+
+ls -ld /u01/app/oracle/admin/${DBUNQ_NAME}/adump
+
+touch $INIT_PFILE_LOC
+
+2) Prepare pfile in the format $ORACLE_HOME/dbs/init<SID>.ora
+
+3) edit the following parameters in the pfile:
+	*.audit_file_dest=/u01/app/oracle/admin/<db_unique_name>/adump
+	*.diagnostic_dest=/u01/app/oracle/admin 
+	*.cluster_database=false in pfile.
+	*.db_name=<new db name>
+	*.db_unique_name=<new db unique name>
+	*.remote_login_passwordfile='EXCLUSIVE'
+
+echo "$DB_SID:$DB_HOME:N" >> /etc/oratab ### For RAC or SIDB
+
+
+4) $DB_HOME/bin/srvctl start db -d $DBUNQ_NAME -o nomount	#It will user the pfile created in step 1 and an entry in /etc/oratab will be created.
+$DB_HOME/bin/srvctl start instance -d $DBUNQ_NAME -i $DB_SID -o nomount # For RAC only
+
+
+	ORAENV_ASK=NO
+	ORACLE_SID=$DB_SID
+	. oraenv
+	unset ORAENV_ASK
+$DB_HOME/bin/sqlplus / as sysdba << EOF
+startup nomount pfile='${INIT_PFILE_LOC}';
+EOF
+	
+	
+	
+	#ORAENV_ASK=NO
+	#unset ORAENV_ASK
+	#	ORACLE_SID=$DB_SID
+#	. oraenv
+#	unset ORAENV_ASK
+#	
+#$DB_HOME/bin/sqlplus -s '/ as sysdba' << EOF
+#alter system set db_create_file_dest='${DB_CREATE_FILE_DEST}' scope=memory sid='*';
+#alter system set db_create_online_log_dest_1='${DB_CREATE_ONLINE_LOG_DEST_1}' scope=memory sid='*';
+#alter system set db_create_online_log_dest_2='${DB_CREATE_ONLINE_LOG_DEST_2}' scope=memory sid='*';
+#alter system set db_recovery_file_dest_size=${DB_RECOVERY_FILE_DEST_SIZE} scope=memory sid='*';
+#alter system set db_recovery_file_dest='${DB_RECOVERY_FILE_DEST}' scope=memory sid='*';
+#create spfile='${DB_CREATE_FILE_DEST}' from memory;
+#shut immediate;
+#startup nomount;
+#set line 200 pages 200
+#show parameter spfile
+#EOF
+
+5) create password file for the sys user.
+
+ORAENV_ASK=NO
+ORACLE_SID=$DB_SID
+. oraenv
+
+$DB_HOME/bin/sqlplus /nolog << EOF
+connect / as sysdba
+shut immediate;
+--startup nomount;
+EOF
+
+unset ORAENV_ASK
+
+echo "$DB_HOME/bin/orapwd file=$DB_CREATE_FILE_DEST password=********* dbuniquename=$DBUNQ_NAME force=y"
+
+$DB_HOME/bin/orapwd file=$DB_CREATE_FILE_DEST password=\"$DB_SYS_PSWD\" dbuniquename=$DBUNQ_NAME force=y
+
+---------------- OR ---------------------
+
+echo "$DB_HOME/bin/orapwd file=$DB_HOME/dbs/orapw${DB_SID} password=\"$DB_SYS_PSWD\"  force=y"
+
+$DB_HOME/bin/orapwd file=$DB_HOME/dbs/orapw${DB_SID} password=\"$DB_SYS_PSWD\" force=y
+
+ORAENV_ASK=NO
+ORACLE_SID=$DB_SID
+. oraenv
+
+$DB_HOME/bin/sqlplus /nolog << EOF
+connect / as sysdba
+--shut immediate;
+startup nomount;
+EOF
+
+unset ORAENV_ASK
+
+6) 
+	ORAENV_ASK=NO
+	ORACLE_SID=$DB_SID
+	. oraenv
+	unset ORAENV_ASK
+
+$DB_HOME/bin/sqlplus -s "/ as sysdba" << EOF
+create spfile='${DB_CREATE_FILE_DEST}' from pfile='${INIT_PFILE_LOC}';
+EOF
+
+-- OR --
+
+ORAENV_ASK=NO
+	ORACLE_SID=$DB_SID
+	. oraenv
+	unset ORAENV_ASK
+
+$DB_HOME/bin/sqlplus /nolog << EOF
+connect / as sysdba
+create spfile='${DB_HOME}/dbs/spfile${DB_SID}.ora' from pfile='${INIT_PFILE_LOC}';
+EOF
+
+
+7) bounce the db
+
+ORAENV_ASK=NO
+	ORACLE_SID=$DB_SID
+	. oraenv
+	unset ORAENV_ASK
+$DB_HOME/bin/sqlplus /nolog << EOF
+connect / as sysdba
+shut immediate;
+startup nomount;
+set line 200 pages 200
+show parameter spfile
+select * from v\$passwordfile_info;
+EOF
+
+8) execute the following sql statements.
+
+ORAENV_ASK=NO
+	ORACLE_SID=$DB_SID
+	. oraenv
+	unset ORAENV_ASK
+	
+$DB_HOME/bin/sqlplus /nolog << EOF
+connect / as sysdba
+alter system set db_create_file_dest='${DB_CREATE_FILE_DEST}' scope=both sid='*';
+alter system set db_create_online_log_dest_1='${DB_CREATE_ONLINE_LOG_DEST_1}' scope=both sid='*';
+alter system set db_create_online_log_dest_2='${DB_CREATE_ONLINE_LOG_DEST_2}' scope=both sid='*';
+alter system set db_recovery_file_dest_size=${DB_RECOVERY_FILE_DEST_SIZE} scope=both sid='*';
+alter system set db_recovery_file_dest='${DB_RECOVERY_FILE_DEST}' scope=both sid='*';
+alter system set log_archive_dest_1='LOCATION=${LOG_ARCHIVE_DEST}' scope=both sid='*';
+set line 200 pages 200
+show parameter db_create
+show parameter db_recovery_file_dest 
+show parameter cluster_database
+EOF
+
+#ORAENV_ASK=NO
+#ORACLE_SID=$ASM_INST
+#. oraenv
+#unset ORAENV_ASK
+
+#asmcmd pwcreate --dbuniquename $DBUNQ_NAME $DB_CREATE_FILE_DEST $DB_SYS_PSWD -f
+
+	
+$DB_HOME/bin/srvctl config db -d $DBUNQ_NAME -v
+
+#9) Add static entry for the database in listener.ora
+
+10) Generate rman_dup script for the cloning.
+set line 200
+col DG_NAME for a40
+col VALUE for a40
+col ATTR_NAME for a40
+
+# alter diskgroup OCR_DG set attribute 'compatible.rdbms'
+
+
+
+# select dg.name dg_name, attr.name attr_name ,attr.value,group_number from v$asm_attribute attr join v$asm_diskgroup dg using (group_number) where dg.name='BRK3MES_DG' and attr.name like '%compatible%';
+
+
+alter system set log_archive_config='DG_CONFIG=(prd3mes,dr3mes)' sid='*'; ## on both primary and DR database.
+
+
+alter system set log_archive_dest_2='SERVICE="(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = oraatl1s-scan.compute.ge-healthcare.net)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = dr3mes)))" ASYNC VALID_FOR=(ONLINE_LOGFILES,PRIMARY_ROLE) DB_UNIQUE_NAME=dr3mes' sid='*'; ## on primary
+
+
+alter system set fal_server='(DESCRIPTION=(CONNECT_DATA=(SERVICE_NAME=prd3mes))(ADDRESS=(PROTOCOL=tcp)(HOST=oramke1p-scan.compute.ge-healthcare.net)(PORT=1521)))' sid='*'; ## on DR database
+
+alter system set log_archive_dest_state_2=enable sid='*'; ## on primary after DR creation is completed.

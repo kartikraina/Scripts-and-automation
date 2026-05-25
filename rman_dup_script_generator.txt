@@ -1,0 +1,115 @@
+## Script Name: rman_dup_script_generator.sh ##
+## Author: Kartik Raina (503394096) ##
+## Initial Draft: March 21, 2024 ##
+## Revision 1: May 07, 2024 ##
+
+#export RMAN_PAR=$1
+
+#. $RMAN_PAR
+
+#-----------------------------------------------------------------
+
+ACTIVE_DUPLICATE=y  ## 'y' for yes | 'n' or leave empty for no
+
+SRC_IP='oramke1p-scan.compute.ge-healthcare.net'
+
+SRC_PORT=1521
+
+SRC_DB=prd4mes
+
+SRC_SERVICE_NAME=prd4mes
+
+SRC_DB_PSWD='ZYrzi?fO4g5y0jK'
+
+SRC_CHANNELS=8
+
+AUX_IP='usatllsorarac01.compute.ge-healthcare.net'
+
+AUX_PORT=1521
+
+AUX_DB=dr4mes
+
+AUX_SID=dr4mes1
+
+AUX_DB_HOME='/u01/app/oracle/product/19.3.0.0/dbee_1'
+
+AUX_SERVICE_NAME=dr4mes
+
+AUX_DB_PSWD='ZYrzi?fO4g5y0jK'
+
+AUX_CHANNELS=8
+
+SRC_BKP_LOC=/backup/src_bkp
+
+LOG_DIR='/u01/app/oracle/admin/CHG0144945_dlt_aftr_17Jun2026'
+
+#AUX_DB_FILE_LOC=+STG4OTM_DG
+
+#AUX_LOG_FILE_LOC=+STG4OTM_DG
+
+#---------------------------------------------------------------------------
+#START_TIME=`date`
+#echo "Start Time: $START_TIME"
+
+AUX_TNS="connect auxiliary 'sys/\"${AUX_DB_PSWD}\"@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$AUX_IP)(PORT=$AUX_PORT))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=$AUX_SERVICE_NAME)(UR = A)))'"
+
+#AUX_TNS="connect auxiliary \'sys/\"${AUX_DB_PSWD}\"\'"
+
+#AUX_TNS="connect auxiliary \'sys/\"${AUX_DB_PSWD}\"@$AUX_SERVICE_NAME\'"
+
+DUP_CMD_FILE=${LOG_DIR}/rman_dup_${AUX_DB}.cmd
+
+export DUP_SCRIPT=${LOG_DIR}/rman_dup_${AUX_DB}_`date +%d%b%H%M%S`.sh
+export DUP_LOG=${LOG_DIR}/rman_dup_${AUX_DB}_\${DATE_TIME}.log
+export ALLOCATE_AUX_CHANNEL_CMD=${LOG_DIR}/rman_allocate_aux_channels_${AUX_DB}.cmd
+#export RELEASE_AUX_CHANNEL_CMD=${LOG_DIR}/rman_release_aux_channels_${AUX_DB}.cmd
+export ALLOCATE_SRC_CHANNEL_CMD=${LOG_DIR}/rman_allocate_src_channels_${AUX_DB}.cmd
+#export RELEASE_SRC_CHANNEL_CMD=${LOG_DIR}/rman_release_src_channels_${AUX_DB}.cmd
+
+if [[ $ACTIVE_DUPLICATE == 'y' ]]; then
+echo "for channel in {1..${SRC_CHANNELS}}; do echo allocate channel src\$channel device type disk\;${echo}; done;" | cat > $ALLOCATE_SRC_CHANNEL_CMD
+#echo "for channel in {1..${SRC_CHANNELS}}; do echo release channel src\$channel\;${echo}; done;" | cat > $RELEASE_SRC_CHANNEL_CMD
+SRC_TNS="connect target 'sys/\"${SRC_DB_PSWD}\"@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$SRC_IP)(PORT=$SRC_PORT))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=$SRC_SERVICE_NAME)))'"
+echo "\$ACTIVE_DUPLICATE='y'"
+echo RMAN active duplication script creation in progress...
+DUP_CMD="duplicate target database to '${AUX_DB}' from active database"
+elif [[ $ACTIVE_DUPLICATE == 'n' || -z $ACTIVE_DUPLICATE ]]; then
+echo "echo" | cat > $ALLOCATE_SRC_CHANNEL_CMD
+echo "echo" | cat > $RELEASE_SRC_CHANNEL_CMD
+if [[ -z $SRC_BKP_LOC ]]; then
+echo "Parameter \$SRC_BKP_LOC is empty. Please specify the backup location for backup based RMAN duplication."
+exit 1;
+else
+echo "\$ACTIVE_DUPLICATE='n'"
+echo RMAN duplication script creation for backup based duplication in progress...
+DUP_CMD="duplicate target database to '${AUX_DB}' backup location '${SRC_BKP_LOC}'"
+fi
+fi
+
+echo "for channel in {1..${AUX_CHANNELS}}; do echo allocate auxiliary channel aux\$channel device type disk\;${echo}; done;" | cat > $ALLOCATE_AUX_CHANNEL_CMD
+#echo "for channel in {1..${AUX_CHANNELS}}; do echo release channel aux\$channel\;${echo}; done;" | cat > $RELEASE_AUX_CHANNEL_CMD
+
+echo "export DATE_TIME=\`date +%d%b%H%M%S\`
+echo Using script $DUP_SCRIPT >> $DUP_LOG
+export ORACLE_SID=$AUX_SID
+export ORACLE_HOME=$AUX_DB_HOME
+\$ORACLE_HOME/bin/rman << EOF >> $DUP_LOG
+$SRC_TNS
+$AUX_TNS
+run
+{
+`sh $ALLOCATE_SRC_CHANNEL_CMD`
+`sh $ALLOCATE_AUX_CHANNEL_CMD`
+
+$DUP_CMD;
+}
+EOF" | cat >> $DUP_SCRIPT
+
+chmod u+x $DUP_SCRIPT 
+
+echo "RMAN duplicate script ($DUP_SCRIPT) creation completed".
+
+#END_TIME=`date`
+#echo "End Time: $END_TIME"
+
+#------------------------------------------------------------------------------
