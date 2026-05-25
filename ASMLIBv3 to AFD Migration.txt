@@ -1,0 +1,540 @@
+MOS Document: https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=15041622509621&parent=EXTERNAL_SEARCH&sourceId=HOWTO&id=2172754.1&_afrWindowMode=0&_adf.ctrl-state=4ctl2cp8i_4
+
+
+[root@usmkelsorarac03 ~]# oracleasm listdisks | xargs oracleasm querydisk -p
+Disk "ALIB2AFD_DG_MPATHAE_56GB" is a valid ASM disk
+/dev/sdaf1: LABEL="ALIB2AFD_DG_MPATHAE_56GB" TYPE="oracleasm" PARTUUID="c4447aa8-01"
+/dev/sdbl1: LABEL="ALIB2AFD_DG_MPATHAE_56GB" TYPE="oracleasm" PARTUUID="c4447aa8-01"
+/dev/sdcr1: LABEL="ALIB2AFD_DG_MPATHAE_56GB" TYPE="oracleasm" PARTUUID="c4447aa8-01"
+/dev/sddx1: LABEL="ALIB2AFD_DG_MPATHAE_56GB" TYPE="oracleasm" PARTUUID="c4447aa8-01"
+/dev/mapper/mpathae1: LABEL="ALIB2AFD_DG_MPATHAE_56GB" TYPE="oracleasm" PARTUUID="33af7d9a-01"
+Disk "ORCL_DG" is a valid ASM disk
+/dev/mapper/mpathaf1: LABEL="ORCL_DG" TYPE="oracleasm" PARTUUID="b42fb5c9-01"
+[root@usmkelsorarac03 ~]# blkid | grep oracleasm
+/dev/sdaf1: LABEL="ALIB2AFD_DG_MPATHAE_56GB" TYPE="oracleasm" PARTUUID="c4447aa8-01"
+/dev/sdbl1: LABEL="ALIB2AFD_DG_MPATHAE_56GB" TYPE="oracleasm" PARTUUID="c4447aa8-01"
+/dev/sdcr1: LABEL="ALIB2AFD_DG_MPATHAE_56GB" TYPE="oracleasm" PARTUUID="c4447aa8-01"
+/dev/sddx1: LABEL="ALIB2AFD_DG_MPATHAE_56GB" TYPE="oracleasm" PARTUUID="c4447aa8-01"
+/dev/mapper/mpathae1: LABEL="ALIB2AFD_DG_MPATHAE_56GB" TYPE="oracleasm" PARTUUID="33af7d9a-01"
+/dev/mapper/mpathaf1: LABEL="ORCL_DG" TYPE="oracleasm" PARTUUID="b42fb5c9-01"
+
+
+[root@usmkelsorarac03 ~]# su - grid
+Last login: Sat Mar 29 08:05:20 CDT 2025
+[grid@usmkelsorarac03 ~]$ . oraenv
+ORACLE_SID = [grid] ? +ASM1
+The Oracle base remains unchanged with value /u01/app/oracle
+[grid@usmkelsorarac03 ~]$ asmcmd dsget
+parameter:/dev/mapper/mpath*
+profile:/dev/mapper/mpath*
+[grid@usmkelsorarac03 ~]$
+
+
+asmcmd dsset '/dev/mapper/mpath*','AFD:*' - Change on only node -1, it will reflect in all the other nodes.
+
+[grid@usmkelsorarac03 ~]$ asmcmd dsset '/dev/mapper/mpath*','AFD:*'
+[grid@usmkelsorarac03 ~]$ asmcmd dsget
+parameter:/dev/mapper/mpath*, AFD:*
+profile:/dev/mapper/mpath*,AFD:*
+[grid@usmkelsorarac03 ~]$
+
+[root@usmkelsorarac03 ~]# crsctl stop crs
+[root@usmkelsorarac04 ~]# crsctl stop crs
+
+[root@usmkelsorarac03 ~]# oracleasm status
+Checking if the oracleasm kernel module is loaded: no (Not required with kernel 5.15.0)
+Checking if /dev/oracleasm is mounted: no (Not required with kernel 5.15.0)
+Checking which I/O Interface is in use: io_uring (KABI_V3)
+Checking if io_uring is enabled: yes
+Checking if ASM disks have the correct ownership and permissions: yes
+[root@usmkelsorarac03 ~]#
+
+[root@usmkelsorarac04 ~]# oracleasm status
+Checking if the oracleasm kernel module is loaded: no (Not required with kernel 5.15.0)
+Checking if /dev/oracleasm is mounted: no (Not required with kernel 5.15.0)
+Checking which I/O Interface is in use: io_uring (KABI_V3)
+Checking if io_uring is enabled: yes
+Checking if ASM disks have the correct ownership and permissions: yes
+[root@usmkelsorarac04 ~]#
+
+[root@usmkelsorarac03 ~]# oracleasm exit
+Unloading module "oracleasm": Not applicable with kernel 5.15.0
+Unmounting ASMlib driver filesystem: Not applicable with kernel 5.15.0
+[root@usmkelsorarac03 ~]
+
+[root@usmkelsorarac04 ~]# oracleasm exit
+Unloading module "oracleasm": Not applicable with kernel 5.15.0
+Unmounting ASMlib driver filesystem: Not applicable with kernel 5.15.0
+[root@usmkelsorarac04 ~]#
+
+
+[root@usmkelsorarac03 ~]# lsmod | grep acfs
+oracleacfs           5865472  0
+oracleoks             901120  2 oracleadvm,oracleacfs
+[root@usmkelsorarac03 ~]#
+
+[root@usmkelsorarac04 ~]# lsmod | grep acfs
+oracleacfs           5865472  0
+oracleoks             901120  2 oracleadvm,oracleacfs
+[root@usmkelsorarac04 ~]#
+
+[root@usmkelsorarac03 ~]# acfsload stop
+[root@usmkelsorarac03 ~]# lsmod | grep acfs
+[root@usmkelsorarac03 ~]#
+
+[root@usmkelsorarac04 ~]# acfsload stop
+[root@usmkelsorarac04 ~]# lsmod | grep acfs
+[root@usmkelsorarac04 ~]#
+
+[root@usmkelsorarac04 ~]# yum remove oracleasmlib oracleasm-support
+Repository ol8_baseos_latest is listed more than once in the configuration
+Repository ol8_addons is listed more than once in the configuration
+Dependencies resolved.
+========================================================================================================================================================================
+ Package                                      Architecture                      Version                                  Repository                                Size
+========================================================================================================================================================================
+Removing:
+ oracleasm-support                            x86_64                            3.0.0-7.el8                              @ol8_addons                              323 k
+ oracleasmlib                                 x86_64                            3.0.0-13.el8                             @@commandline                             91 k
+
+Transaction Summary
+========================================================================================================================================================================
+Remove  2 Packages
+
+Freed space: 414 k
+Is this ok [y/N]: y
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                                                                                                                1/1
+  Running scriptlet: oracleasmlib-3.0.0-13.el8.x86_64                                                                                                               1/1
+  Erasing          : oracleasmlib-3.0.0-13.el8.x86_64                                                                                                               1/2
+  Erasing          : oracleasm-support-3.0.0-7.el8.x86_64                                                                                                           2/2
+warning: /etc/sysconfig/oracleasm saved as /etc/sysconfig/oracleasm.rpmsave
+
+  Running scriptlet: oracleasm-support-3.0.0-7.el8.x86_64                                                                                                           2/2
+  Verifying        : oracleasm-support-3.0.0-7.el8.x86_64                                                                                                           1/2
+  Verifying        : oracleasmlib-3.0.0-13.el8.x86_64                                                                                                               2/2
+
+Removed:
+  oracleasm-support-3.0.0-7.el8.x86_64                                                 oracleasmlib-3.0.0-13.el8.x86_64
+
+Complete!
+[root@usmkelsorarac04 ~]#
+
+
+[root@usmkelsorarac03 ~]# . oraenv
+ORACLE_SID = [+ASM1] ?
+The Oracle base remains unchanged with value /u01/app/oracle
+[root@usmkelsorarac03 ~]# asmcmd afd_configure  ## on all nodes
+AFD-627: AFD distribution files found.
+AFD-634: Removing previous AFD installation.
+AFD-635: Previous AFD components successfully removed.
+AFD-9294: updating file /etc/sysconfig/oracledrivers.conf
+AFD-636: Installing requested AFD software.
+AFD-637: Loading installed AFD drivers.
+AFD-9321: Creating udev for AFD.
+AFD-9323: Creating module dependencies - this may take some time.
+AFD-9154: Loading 'oracleafd.ko' driver.
+AFD-649: Verifying AFD devices.
+AFD-9156: Detecting control device '/dev/oracleafd/admin'.
+AFD-638: AFD installation correctness verified.
+Use of uninitialized value $retrycnt in numeric gt (>) at /u01/app/19.3.0.0/grid/lib/asmcmdafd.pm line 3636.
+Use of uninitialized value $retrycnt in numeric gt (>) at /u01/app/19.3.0.0/grid/lib/asmcmdafd.pm line 3645.
+Modifying resource dependencies - this may take some time.
+[root@usmkelsorarac03 ~]#
+
+[root@usmkelsorarac04 ~]# asmcmd afd_configure
+AFD-627: AFD distribution files found.
+AFD-634: Removing previous AFD installation.
+AFD-635: Previous AFD components successfully removed.
+AFD-9294: updating file /etc/sysconfig/oracledrivers.conf
+AFD-636: Installing requested AFD software.
+AFD-637: Loading installed AFD drivers.
+AFD-9321: Creating udev for AFD.
+AFD-9323: Creating module dependencies - this may take some time.
+AFD-9154: Loading 'oracleafd.ko' driver.
+AFD-649: Verifying AFD devices.
+AFD-9156: Detecting control device '/dev/oracleafd/admin'.
+AFD-638: AFD installation correctness verified.
+Use of uninitialized value $retrycnt in numeric gt (>) at /u01/app/19.3.0.0/grid/lib/asmcmdafd.pm line 3636.
+Use of uninitialized value $retrycnt in numeric gt (>) at /u01/app/19.3.0.0/grid/lib/asmcmdafd.pm line 3645.
+Modifying resource dependencies - this may take some time.
+[root@usmkelsorarac04 ~]#
+
+
+[root@usmkelsorarac03 ~]# asmcmd afd_state
+ASMCMD-9526: The AFD state is 'LOADED' and filtering is 'DISABLED' on host 'usmkelsorarac03'
+[root@usmkelsorarac03 ~]#
+
+[root@usmkelsorarac04 ~]# asmcmd afd_state
+ASMCMD-9526: The AFD state is 'LOADED' and filtering is 'DISABLED' on host 'usmkelsorarac04'
+[root@usmkelsorarac04 ~]#
+
+
+[root@usmkelsorarac03 ~]# vi /etc/oracleafd.conf
+[root@usmkelsorarac03 ~]#
+
+[root@usmkelsorarac04 ~]# vi /etc/oracleafd.conf
+[root@usmkelsorarac04 ~]#
+
+#######################################################################################################################
+## DO NOT ENABLE FILTERING AS WE HAVE FACED ISSUES WITH FILTERING IN THE PAST WHICH RESULTS IN THE REBOOT OF SERVERS.##
+## asmcmd afd_filter -e ###############################################################################################
+#######################################################################################################################
+
+[root@usmkelsorarac03 ~]# asmcmd afd_lsdsk
+--------------------------------------------------------------------------------
+Label                     Filtering   Path
+================================================================================
+ALIB2AFD_DG_MPATHAE_56G    DISABLED   /dev/mapper/mpathae1
+ORCL_DG                    DISABLED   /dev/mapper/mpathaf1
+[root@usmkelsorarac03 ~]#
+
+[root@usmkelsorarac04 ~]# asmcmd afd_lsdsk
+--------------------------------------------------------------------------------
+Label                     Filtering   Path
+================================================================================
+ALIB2AFD_DG_MPATHAE_56G    DISABLED   /dev/mapper/mpathae1
+ORCL_DG                    DISABLED   /dev/mapper/mpathaf1
+[root@usmkelsorarac04 ~]#
+
+
+asmcmd afd_label ALIB2AFD_DG_MPATHAE_56G /dev/mapper/mpathae1 --migrate
+asmcmd afd_label ORCL_DG /dev/mapper/mpathaf1 --migrate
+
+
+[root@usmkelsorarac03 ~]# asmcmd afd_label ALIB2AFD_DG_MPATHAE_56G /dev/mapper/mpathae1 --migrate
+label name ALIB2AFD_DG_MPATHAE_56G is already in use
+ASMCMD-9513: ASM disk label set operation failed.
+
+[root@usmkelsorarac03 ~]# ls -lrt /dev/oracleafd/disks/
+total 8
+-rw-rw-r--. 1 grid oinstall 21 Mar 29 08:34 ALIB2AFD_DG_MPATHAE_56G
+-rw-rw-r--. 1 grid oinstall 21 Mar 29 08:34 ORCL_DG
+[root@usmkelsorarac03 ~]#
+
+[root@usmkelsorarac04 ~]# ls -lrt /dev/oracleafd/disks/
+total 8
+-rw-rw-r--. 1 grid oinstall 21 Mar 29 08:36 ORCL_DG
+-rw-rw-r--. 1 grid oinstall 21 Mar 29 08:36 ALIB2AFD_DG_MPATHAE_56G
+[root@usmkelsorarac04 ~]#
+
+
+[root@usmkelsorarac03 ~]# acfsload start
+ACFS-9391: Checking for existing ADVM/ACFS installation.
+ACFS-9392: Validating ADVM/ACFS installation files for operating system.
+ACFS-9393: Verifying ASM Administrator setup.
+ACFS-9308: Loading installed ADVM/ACFS drivers.
+ACFS-9154: Loading 'oracleoks.ko' driver.
+ACFS-9154: Loading 'oracleadvm.ko' driver.
+ACFS-9154: Loading 'oracleacfs.ko' driver.
+ACFS-9325:     Driver OS kernel version = 5.15.0-201.135.6.el8uek.x86_64.
+ACFS-9326:     Driver build number = 241103.
+ACFS-9231:     Driver build version = 19.0.0.0.0 (19.26.0.0.0).
+ACFS-9547:     Driver available build number = 241103.
+ACFS-9232:     Driver available build version = 19.0.0.0.0 (19.26.0.0.0).
+ACFS-9549:     Kernel and command versions.
+Kernel:
+    Build version: 19.0.0.0.0
+    Build full version: 19.26.0.0.0
+    Build hash:    9256567290
+    Bug numbers:   NoTransactionInformation
+Commands:
+    Build version: 19.0.0.0.0
+    Build full version: 19.26.0.0.0
+    Build hash:    9256567290
+    Bug numbers:   NoTransactionInformation
+ACFS-9327: Verifying ADVM/ACFS devices.
+ACFS-9156: Detecting control device '/dev/asm/.asm_ctl_spec'.
+ACFS-9156: Detecting control device '/dev/ofsctl'.
+ACFS-9294: updating file /etc/sysconfig/oracledrivers.conf
+ACFS-9322: completed
+[root@usmkelsorarac03 ~]#
+
+
+[root@usmkelsorarac04 ~]# acfsload start
+ACFS-9391: Checking for existing ADVM/ACFS installation.
+ACFS-9392: Validating ADVM/ACFS installation files for operating system.
+ACFS-9393: Verifying ASM Administrator setup.
+ACFS-9308: Loading installed ADVM/ACFS drivers.
+ACFS-9154: Loading 'oracleoks.ko' driver.
+ACFS-9154: Loading 'oracleadvm.ko' driver.
+ACFS-9154: Loading 'oracleacfs.ko' driver.
+ACFS-9325:     Driver OS kernel version = 5.15.0-201.135.6.el8uek.x86_64.
+ACFS-9326:     Driver build number = 241103.
+ACFS-9231:     Driver build version = 19.0.0.0.0 (19.26.0.0.0).
+ACFS-9547:     Driver available build number = 241103.
+ACFS-9232:     Driver available build version = 19.0.0.0.0 (19.26.0.0.0).
+ACFS-9549:     Kernel and command versions.
+Kernel:
+    Build version: 19.0.0.0.0
+    Build full version: 19.26.0.0.0
+    Build hash:    9256567290
+    Bug numbers:   NoTransactionInformation
+Commands:
+    Build version: 19.0.0.0.0
+    Build full version: 19.26.0.0.0
+    Build hash:    9256567290
+    Bug numbers:   NoTransactionInformation
+ACFS-9327: Verifying ADVM/ACFS devices.
+ACFS-9156: Detecting control device '/dev/asm/.asm_ctl_spec'.
+ACFS-9156: Detecting control device '/dev/ofsctl'.
+ACFS-9294: updating file /etc/sysconfig/oracledrivers.conf
+ACFS-9322: completed
+[root@usmkelsorarac04 ~]#
+
+[root@usmkelsorarac03 ~]# lsmod | grep acfs
+oracleacfs           5865472  0
+oracleoks             901120  2 oracleadvm,oracleacfs
+[root@usmkelsorarac03 ~]#
+
+[root@usmkelsorarac04 ~]# lsmod | grep acfs
+oracleacfs           5865472  0
+oracleoks             901120  2 oracleadvm,oracleacfs
+[root@usmkelsorarac04 ~]#
+
+[root@usmkelsorarac03 ~]# crsctl stat res -t
+--------------------------------------------------------------------------------
+Name           Target  State        Server                   State details
+--------------------------------------------------------------------------------
+Local Resources
+--------------------------------------------------------------------------------
+ora.LISTENER.lsnr
+               ONLINE  OFFLINE      usmkelsorarac03          STABLE
+ora.chad
+               ONLINE  OFFLINE      usmkelsorarac03          STARTING
+ora.net1.network
+               ONLINE  ONLINE       usmkelsorarac03          STABLE
+ora.ons
+               ONLINE  OFFLINE      usmkelsorarac03          STARTING
+ora.proxy_advm
+               OFFLINE OFFLINE      usmkelsorarac03          STABLE
+--------------------------------------------------------------------------------
+Cluster Resources
+--------------------------------------------------------------------------------
+ora.ASMNET1LSNR_ASM.lsnr(ora.asmgroup)
+      1        ONLINE  OFFLINE      usmkelsorarac03          STARTING
+      2        ONLINE  OFFLINE                               STABLE
+ora.LISTENER_SCAN1.lsnr
+      1        ONLINE  OFFLINE                               STABLE
+ora.LISTENER_SCAN2.lsnr
+      1        ONLINE  OFFLINE                               STABLE
+ora.LISTENER_SCAN3.lsnr
+      1        ONLINE  OFFLINE                               STABLE
+ora.ORCL_DG.dg(ora.asmgroup)
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+      2        OFFLINE OFFLINE                               STABLE
+ora.USMKE2SOCR_DG.dg(ora.asmgroup)
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+      2        OFFLINE OFFLINE                               STABLE
+ora.asm(ora.asmgroup)
+      1        ONLINE  ONLINE       usmkelsorarac03          Started,STABLE
+      2        ONLINE  OFFLINE                               STABLE
+ora.asmnet1.asmnetwork(ora.asmgroup)
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+      2        ONLINE  OFFLINE                               STABLE
+ora.cvu
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+ora.orcl.db
+      1        ONLINE  OFFLINE                               Instance Shutdown,ST
+                                                             ABLE
+      2        OFFLINE OFFLINE                               STABLE
+ora.qosmserver
+      1        ONLINE  OFFLINE      usmkelsorarac03          STARTING
+ora.scan1.vip
+      1        ONLINE  OFFLINE      usmkelsorarac03          STARTING
+ora.scan2.vip
+      1        ONLINE  OFFLINE      usmkelsorarac03          STARTING
+ora.scan3.vip
+      1        ONLINE  OFFLINE      usmkelsorarac03          STARTING
+ora.usmkelsorarac03.vip
+      1        ONLINE  OFFLINE      usmkelsorarac03          STARTING
+ora.usmkelsorarac04.vip
+      1        ONLINE  OFFLINE      usmkelsorarac03          STARTING
+--------------------------------------------------------------------------------
+
+
+
+[root@usmkelsorarac04 ~]# crsctl stat res -t
+--------------------------------------------------------------------------------
+Name           Target  State        Server                   State details
+--------------------------------------------------------------------------------
+Local Resources
+--------------------------------------------------------------------------------
+ora.LISTENER.lsnr
+               ONLINE  ONLINE       usmkelsorarac03          STABLE
+               ONLINE  OFFLINE      usmkelsorarac04          STABLE
+ora.chad
+               ONLINE  ONLINE       usmkelsorarac03          STABLE
+               ONLINE  OFFLINE      usmkelsorarac04          STABLE
+ora.net1.network
+               ONLINE  ONLINE       usmkelsorarac03          STABLE
+               ONLINE  ONLINE       usmkelsorarac04          STABLE
+ora.ons
+               ONLINE  ONLINE       usmkelsorarac03          STABLE
+               ONLINE  OFFLINE      usmkelsorarac04          STABLE
+ora.proxy_advm
+               OFFLINE OFFLINE      usmkelsorarac03          STABLE
+               OFFLINE OFFLINE      usmkelsorarac04          STABLE
+--------------------------------------------------------------------------------
+Cluster Resources
+--------------------------------------------------------------------------------
+ora.ASMNET1LSNR_ASM.lsnr(ora.asmgroup)
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+      2        ONLINE  OFFLINE                               STABLE
+ora.LISTENER_SCAN1.lsnr
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+ora.LISTENER_SCAN2.lsnr
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+ora.LISTENER_SCAN3.lsnr
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+ora.ORCL_DG.dg(ora.asmgroup)
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+      2        OFFLINE OFFLINE                               STABLE
+ora.USMKE2SOCR_DG.dg(ora.asmgroup)
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+      2        OFFLINE OFFLINE                               STABLE
+ora.asm(ora.asmgroup)
+      1        ONLINE  ONLINE       usmkelsorarac03          Started,STABLE
+      2        ONLINE  OFFLINE                               Instance Shutdown,ST
+                                                             ABLE
+ora.asmnet1.asmnetwork(ora.asmgroup)
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+      2        ONLINE  OFFLINE                               STABLE
+ora.cvu
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+ora.orcl.db
+      1        ONLINE  ONLINE       usmkelsorarac03          Open,HOME=/u01/app/o
+                                                             racle/product/19.3.0
+                                                             .0/dbee_1,STABLE
+      2        OFFLINE OFFLINE                               Instance Shutdown,ST
+                                                             ABLE
+ora.qosmserver
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+ora.scan1.vip
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+ora.scan2.vip
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+ora.scan3.vip
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+ora.usmkelsorarac03.vip
+      1        ONLINE  ONLINE       usmkelsorarac03          STABLE
+ora.usmkelsorarac04.vip
+      1        ONLINE  INTERMEDIATE usmkelsorarac03          FAILED OVER,STABLE
+--------------------------------------------------------------------------------
+[root@usmkelsorarac04 ~]#
+
+
+[root@usmkelsorarac04 ~]# crsctl check cluster -all
+**************************************************************
+usmkelsorarac03:
+CRS-4537: Cluster Ready Services is online
+CRS-4529: Cluster Synchronization Services is online
+CRS-4533: Event Manager is online
+**************************************************************
+usmkelsorarac04:
+CRS-4537: Cluster Ready Services is online
+CRS-4529: Cluster Synchronization Services is online
+CRS-4533: Event Manager is online
+**************************************************************
+[root@usmkelsorarac04 ~]#
+
+
+
+[root@usmkelsorarac03 ~]# su - grid
+Last login: Sat Mar 29 09:05:20 CDT 2025
+[grid@usmkelsorarac03 ~]$ . roaenv
+-bash: roaenv: No such file or directory
+[grid@usmkelsorarac03 ~]$ +ASM1^C
+[grid@usmkelsorarac03 ~]$ . oraenv
+ORACLE_SID = [grid] ? +ASM1
+The Oracle base remains unchanged with value /u01/app/oracle
+[grid@usmkelsorarac03 ~]$ asmcmd lsdg
+State    Type    Rebal  Sector  Logical_Sector  Block       AU  Total_MB  Free_MB  Req_mir_free_MB  Usable_file_MB  Offline_disks  Voting_files  Name
+MOUNTED  EXTERN  N         512             512   4096  4194304     57344    53084                0           53084              0             N  ORCL_DG/
+MOUNTED  EXTERN  N         512             512   4096  4194304     57344    56980                0           56980              0             Y  USMKE2SOCR_DG/
+[grid@usmkelsorarac03 ~]$
+
+
+[root@usmkelsorarac04 ~]# su - grid
+Last login: Sat Mar 29 09:06:21 CDT 2025
+[grid@usmkelsorarac04 ~]$ . oraenv
+ORACLE_SID = [grid] ? +ASM2
+The Oracle base remains unchanged with value /u01/app/oracle
+[grid@usmkelsorarac04 ~]$ asmcmd lsdg
+State    Type    Rebal  Sector  Logical_Sector  Block       AU  Total_MB  Free_MB  Req_mir_free_MB  Usable_file_MB  Offline_disks  Voting_files  Name
+MOUNTED  EXTERN  N         512             512   4096  4194304     57344    53084                0           53084              0             N  ORCL_DG/
+MOUNTED  EXTERN  N         512             512   4096  4194304     57344    56980                0           56980              0             Y  USMKE2SOCR_DG/
+[grid@usmkelsorarac04 ~]$
+
+[grid@usmkelsorarac03 ~]$ asmcmd lsdsk -G ORCL_DG
+Path
+AFD:ORCL_DG
+[grid@usmkelsorarac03 ~]$ asmcmd lsdsk -G USMKE2SOCR_DG
+Path
+AFD:ALIB2AFD_DG_MPATHAE_56G
+[grid@usmkelsorarac03 ~]$
+
+
+
+[grid@usmkelsorarac03 ~]$ sqlplus / as sysasm
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Sat Mar 29 09:11:26 2025
+Version 19.26.0.0.0
+
+Copyright (c) 1982, 2024, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.26.0.0.0
+
+SQL> set linesize 300
+col PATH for a20
+col LIBRARY for a45
+col NAME for a15
+select inst_id,group_number grp_num,name,state,header_status header,mount_status mount,path, library
+from gv$asm_disk order by inst_id,group_number,name;SQL> SQL> SQL> SQL>   2
+
+   INST_ID    GRP_NUM NAME            STATE    HEADER       MOUNT   PATH                 LIBRARY
+---------- ---------- --------------- -------- ------------ ------- -------------------- ---------------------------------------------
+         1          0                 NORMAL   MEMBER       IGNORED /dev/mapper/mpathae1 System
+         1          0                 NORMAL   MEMBER       IGNORED /dev/mapper/mpathaf1 System
+         1          1 ORCL_DG_0000    NORMAL   MEMBER       CACHED  AFD:ORCL_DG          AFD Library - Generic , version 3 (KABI_V3)
+         1          2 USMKE2SOCR_DG_0 NORMAL   MEMBER       CACHED  AFD:ALIB2AFD_DG_MPAT AFD Library - Generic , version 3 (KABI_V3)
+                      000                                           HAE_56G
+
+         2          0                 NORMAL   MEMBER       IGNORED /dev/mapper/mpathae1 System
+         2          0                 NORMAL   MEMBER       IGNORED /dev/mapper/mpathaf1 System
+         2          1 ORCL_DG_0000    NORMAL   MEMBER       CACHED  AFD:ORCL_DG          AFD Library - Generic , version 3 (KABI_V3)
+         2          2 USMKE2SOCR_DG_0 NORMAL   MEMBER       CACHED  AFD:ALIB2AFD_DG_MPAT AFD Library - Generic , version 3 (KABI_V3)
+                      000                                           HAE_56G
+
+   INST_ID    GRP_NUM NAME            STATE    HEADER       MOUNT   PATH                 LIBRARY
+---------- ---------- --------------- -------- ------------ ------- -------------------- ---------------------------------------------
+
+
+8 rows selected.
+
+SQL>
+
+
+[root@usmkelsorarac03 ~]# kfed read /dev/oracleafd/disks/ORCL_DG
+KFED-00303: unable to open file '/dev/oracleafd/disks/ORCL_DG'
+
+[root@usmkelsorarac03 ~]# kfed read /dev/oracleafd/disks/ALIB2AFD_DG_MPATHAE_56G
+KFED-00303: unable to open file '/dev/oracleafd/disks/ALIB2AFD_DG_MPATHAE_56G'
+
+[root@usmkelsorarac03 ~]#
+
+
+[root@usmkelsorarac04 ~]# kfed read /dev/oracleafd/disks/ORCL_DG
+KFED-00303: unable to open file '/dev/oracleafd/disks/ORCL_DG'
+
+[root@usmkelsorarac04 ~]# kfed read /dev/oracleafd/disks/ALIB2AFD_DG_MPATHAE_56G
+KFED-00303: unable to open file '/dev/oracleafd/disks/ALIB2AFD_DG_MPATHAE_56G'
+
+[root@usmkelsorarac04 ~]#
