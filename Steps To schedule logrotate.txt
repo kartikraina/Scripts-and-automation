@@ -1,0 +1,28 @@
+**************Steps to schedule log rotation on purging of alert logs*******************
+Step#1 Login as oracle on to target server and create a directory as below
+	#mkdir - p /u01/app/oracle/admin/scripts/logrotate
+
+Step#2 Go to above created directory and create the log rotate configuration file as below
+	#cd /u01/app/oracle/admin/scripts/logrotate
+	#vi db_alert_log.conf   -- Replace the alter log file location with relevant one
+	/u01/app/oracle/admin/prdcmt/diag/rdbms/prdcmt/prdcmt1/trace/alert_prdcmt1.log {
+			   monthly
+			   rotate 4
+			   compress
+			   copytruncate
+			   nocreate
+		   }
+	/u01/app/oracle/admin/hcssp/diag/rdbms/hcssp/hcssp1/trace/alert_hcssp1.log {
+			   monthly
+			   rotate 4
+			   compress
+			   copytruncate
+			   nocreate
+		   }
+		   
+Step#3 Schedule the logrotate in Crontab  
+
+	#crontab -e
+
+	05 00 1 * * /usr/sbin/logrotate -s /u01/app/oracle/admin/scripts/logrotate/db_alert_log_stat.f -f /u01/app/oracle/admin/scripts/logrotate/db_alert_log.conf >>/u01/app/oracle/admin/scripts/logrotate/db_alert_log_cron.log 2>&1
+	   

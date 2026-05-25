@@ -1,0 +1,85 @@
+SSL encryption is enabled, and the connection is established over the TCPS protocol using 2484 port. 
+
+The application utilizes the TCPS protocol to establish an SSL-secured connection.
+
+Post server reboot or database restart, verify that all SSL connections have been tested and are working as expected.
+
+steps to verify the SSL connection.
+
+
+usmkelporarac01.compute.ge-healthcare.net[oracle]_prd3mes1>
+usmkelporarac01.compute.ge-healthcare.net[oracle]_prd3mes1> tnsping prd3mes_ssl
+
+TNS Ping Utility for Linux: Version 19.0.0.0.0 - Production on 24-APR-2026 12:20:44
+
+Copyright (c) 1997, 2025, Oracle.  All rights reserved.
+
+Used parameter files:
+/u01/app/oracle/product/19.3.0.0/dbee_1/network/admin/sqlnet.ora
+
+
+Used TNSNAMES adapter to resolve the alias
+Attempting to contact (DESCRIPTION = (ADDRESS = (PROTOCOL = TCPS)(HOST = oramke1p-scan.compute.ge-healthcare.net)(PORT = 2484)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = prd3mes)))
+OK (20 msec)
+usmkelporarac01.compute.ge-healthcare.net[oracle]_prd3mes1> sqlplus system@prd3mes_ssl
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Fri Apr 24 12:20:46 2026
+Version 19.30.0.0.0
+
+Copyright (c) 1982, 2025, Oracle.  All rights reserved.
+
+Enter password:
+Last Successful login time: Fri Apr 24 2026 12:19:32 +00:00
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.30.0.0.0
+
+SQL>
+SQL>
+SQL>
+SQL> set lines 300 pages 300
+SQL> show parameter instance_name;
+
+NAME                                 TYPE                              VALUE
+------------------------------------ --------------------------------- ------------------------------
+instance_name                        string                            prd3mes1
+SQL> select sys_context('USERENV','NETWORK_PROTOCOL') from dual;
+
+SYS_CONTEXT('USERENV','NETWORK_PROTOCOL')
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+tcps
+
+SQL>
+
+usmkelporarac02.compute.ge-healthcare.net[oracle]_prd3mes2> sqlplus system@prd3mes_ssl
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Fri Apr 24 12:23:34 2026
+Version 19.30.0.0.0
+
+Copyright (c) 1982, 2025, Oracle.  All rights reserved.
+
+Enter password:
+Last Successful login time: Fri Apr 24 2026 12:22:41 +00:00
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.30.0.0.0
+
+SQL> show parameter instance_name;
+
+NAME                                 TYPE
+------------------------------------ ---------------------------------
+VALUE
+------------------------------
+instance_name                        string
+prd3mes2
+SQL> select sys_context('USERENV','NETWORK_PROTOCOL') from dual;
+
+SYS_CONTEXT('USERENV','NETWORK_PROTOCOL')
+--------------------------------------------------------------------------------
+tcps
+
+SQL>
+
+

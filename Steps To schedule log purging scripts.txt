@@ -1,0 +1,66 @@
+**************Steps to schedule log rotation on purging of audit logs and trace files*******************
+Step#1 Login as oracle on to target server and create a directory as below
+	#mkdir - p /u01/app/oracle/admin/scripts/purge
+
+Step#2 Get the destination details of adump/cdump and bdump and extension of files created in these directories to make entries in the configuration the will be created in next step
+
+Step#3 Go to above created directory and create the purge configuration.This file stores the details of target directory and type of files and retention period separated by “:” in below format. You can specify multiple entries for different target directories.
+	Example: /u01/app/oracle/admin/crp1mes/adump:*.aud:90
+	<log file directory>:<extension of log file>:<retention period>
+	#cd /u01/app/oracle/admin/scripts/purge
+	#vi ora_log_purge.conf     - make the entries as per format mentioned above in addition to below entry
+	/u01/app/oracle/admin/scripts/purge:*.log:90
+
+Step#4	Create shell script to purge logs/audit logs/trace files
+	#vi ora_log_purge.sh          --- Copy and paste below shell script content
+###############################################################################################################
+#!/bin/bash                                                                                                   #
+#-------------------------------------------------------------------------------------------------------------#
+#       Script Information                                                                                    #
+#-------------------------------------------------------------------------------------------------------------#
+#Script Name:   ora_log_purge.sh                                                                              #
+#Description:   This script delete the logs/trace/aud files as per their retention      mentioned             #
+#                             in the input file "ora_purge.conf                                               #
+#        Script location: /u01/app/oracle/admin/scripts/purge                                                 #
+#       Usage : Create the ora_purge.conf under above location make entries in below format                   #
+#                       <directory_name>:<file extension>:<retention days>                                    #
+#                       Once conf file is created schedule the script in crontab                              #
+#-------------------------------------------------------------------------------------------------------------#
+#                                                                                                             #
+#                                                                                                             #
+#-------------------------------------------------------------------------------------------------------------#
+#                                               Version Log                                                   #
+#-------------------------------------------------------------------------------------------------------------#
+# 2025-Jan-14 - Sampath Kumar Bodiga  - initial version                                                       #
+#-------------------------------------------------------------------------------------------------------------#
+# Initialize variables
+export SCRIPT_DIR=/u01/app/oracle/admin/scripts/purge
+DATE=`date +%m%d%y`
+ORA_FILES_PURGE_CONF=$SCRIPT_DIR/ora_log_purge.conf
+>$SCRIPT_DIR/ora_log_purge_$DATE.log
+
+echo $ORA_FILES_PURGE_CONF
+cat $ORA_FILES_PURGE_CONF
+for dest in `cat $ORA_FILES_PURGE_CONF`;
+do
+DIR_NAME=`echo ${dest} | awk -F ':' '{print $1}'`
+FILE_EXT=`echo ${dest} | awk -F ':' '{print $2}'`
+RET_DAYS=`echo ${dest} | awk -F ':' '{print $3}'`
+echo "Deleting ${FILE_EXT} from  ${DIR_NAME} Older than $RET_DAYS"  >>$SCRIPT_DIR/ora_log_purge_$DATE.log
+echo "find ${DIR_NAME} -type f -name '${FILE_EXT}' -mtime +${RET_DAYS} -delete">>$SCRIPT_DIR/ora_log_purge_1.sh
+done;
+chmod +x $SCRIPT_DIR/ora_log_purge_1.sh
+$SCRIPT_DIR/ora_log_purge_1.sh
+
+
+
+
+Step#5  Grant execute permission on the shell script created above
+	# chmod +x /u01/app/oracle/admin/scripts/purge/ora_log_purge.sh
+
+Step#6	Scheduling purge script through crontab
+	Once shell script is created as mentioned in above step, make an entry in crontab as mentioned below.
+
+00 06 * * * /u01/app/oracle/admin/scripts/purge/ora_log_purge.sh  > /u01/app/oracle/admin/scripts/purge/ora_log_purge_cron_`date +\%m\%d`.log 2>&1
+
+
