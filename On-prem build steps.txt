@@ -1,0 +1,5 @@
+--- local node ---
+
+1) OS users and groups:
+
+sh -c 'useradd -u 1001 grid && useradd -u 1000 oracle'

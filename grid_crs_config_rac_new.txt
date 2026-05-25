@@ -1,0 +1,41 @@
+/u01/app/19.3.0.0/grid/runcluvfy.sh stage -pre crsinst -n usmkelsorarac03,usmkelsorarac04 -fixup -verbose
+
+/u01/app/19.3.0.0/grid/gridSetup.sh -silent INVENTORY_LOCATION=/u01/app/oraInventory \
+oracle.install.option=CRS_CONFIG \
+ORACLE_BASE=/u01/app/oracle \
+oracle.install.asm.OSDBA=asmdba \
+oracle.install.asm.OSOPER=asmoper \
+oracle.install.asm.OSASM=asmadmin \
+oracle.install.crs.config.scanType=LOCAL_SCAN \
+oracle.install.crs.config.gpnp.scanName=oramke2s-scan.compute.ge-healthcare.net \
+oracle.install.crs.config.gpnp.scanPort=1521 \
+oracle.install.crs.config.ClusterConfiguration=STANDALONE \
+oracle.install.crs.config.configureAsExtendedCluster=false \
+oracle.install.crs.config.clusterName=oramke2s \
+oracle.install.crs.config.gpnp.configureGNS=false \
+oracle.install.crs.config.autoConfigureClusterNodeVIP=false \
+oracle.install.crs.config.clusterNodes=usmkelsorarac03.compute.ge-healthcare.net:usmkelsorarac03-vip.compute.ge-healthcare.net,usmkelsorarac04.compute.ge-healthcare.net:usmkelsorarac04-vip.compute.ge-healthcare.net \
+oracle.install.crs.config.networkInterfaceList=ens6f0np0:192.168.0.0:5,ens6f1np1:192.168.0.0:3,bond0:10.21.138.0:1 \
+oracle.install.crs.configureGIMR=false \
+oracle.install.asm.configureGIMRDataDG=false \
+oracle.install.crs.config.storageOption=FLEX_ASM_STORAGE \
+oracle.install.crs.config.useIPMI=false \
+oracle.install.asm.SYSASMPassword=H1nd6anc5_9ba \
+oracle.install.asm.diskGroup.name=USMKE2SOCR_DG \
+oracle.install.asm.diskGroup.redundancy=EXTERNAL \
+oracle.install.asm.diskGroup.AUSize=4 \
+oracle.install.asm.diskGroup.disks=/dev/mapper/mpathae1 \
+oracle.install.asm.diskGroup.diskDiscoveryString=/dev/mapper/mpath* \
+oracle.install.asm.monitorPassword=H1nd6anc5_9ba \
+#oracle.install.asm.gimrDG.name= \
+#oracle.install.asm.gimrDG.redundancy= \
+#oracle.install.asm.gimrDG.AUSize=4 \
+#oracle.install.asm.gimrDG.disks=/dev/mapper/mpathd1 \
+oracle.install.asm.configureAFD=false \
+oracle.install.crs.configureRHPS=false \
+oracle.install.crs.config.ignoreDownNodes=false \
+oracle.install.config.managementOption=NONE \
+oracle.install.crs.rootconfig.executeRootScript=false >> /u01/media/grid_crs_config.out 2>&1 &
+
+
+/u01/app/19.3.0.0/grid/gridSetup.sh -executeConfigTools -responseFile /u01/app/19.3.0.0/grid/install/response/grid_2025-03-27_09-54-45AM.rsp -silent >> /u01/media/grid_congif_tools.out 2>&1 &

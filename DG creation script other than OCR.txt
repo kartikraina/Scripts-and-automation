@@ -1,0 +1,120 @@
+#1. Make sure the Sector size of the disk is as same as the source database disk.
+#2. The disks should not be present in blkid output. IF blkid shows the entry of disks, the run command `wipefs -a <device_name>`.
+#3. Make sure the Physical memory is at least 8 GB.
+#4. Make sure the swap is atleaset 16 GB usable (preferably 16GB).
+#5. create list of disks in the file disks_list_{DG_NAME} in location BINARY_LOC.
+
+#--DG_NAME variable is case sensitive
+
+##------------------------------------------------------##
+
+CRS_HOME=/u01/app/19.3.0.0/grid
+ASM_INST=+ASM
+BINARY_LOC=/dba/media
+DG_NAME=etmhcprd_log
+DG_DISCOVERY_STR=/dev
+DG_LOGICAL_SS=512
+
+##------------------------------------------------------##
+
+DG_DISK_LIST_PATH=${BINARY_LOC}/disks_list_${DG_NAME}
+
+chmod a+r $DG_DISK_LIST_PATH
+
+export ORAENV_ASK=NO
+
+export ORACLE_SID=$ASM_INST
+
+. oraenv
+
+unset ORAENV_ASK
+
+#Labelling the OCR disks...
+
+#Check if AFD is installed or not...
+
+export ORACLE_BASE=/tmp
+if [[ -z `nohup $CRS_HOME/bin/asmcmd afd_state | grep -i ASMCMD-9526` && `nohup $CRS_HOME/bin/asmcmd afd_state | grep -i 'ASMCMD-9530' | awk -F ':' '{print $1}'` == 'ASMCMD-9530' ]]
+then
+AFD_STATE=0
+elif [[ `nohup $CRS_HOME/bin/asmcmd afd_state | awk -F ':' '{print $1}'` ==  'ASMCMD-9526' ]]
+then
+AFD_STATE=1
+fi
+unset ORACLE_BASE
+
+echo "AFD_STATE: $AFD_STATE"
+
+
+# 23 characters allowed in label name
+
+DISK_LIST=''
+declare -i du_count=0
+for disk in `cat $DG_DISK_LIST_PATH`;
+do
+MPATH_NAME=`echo ${disk} | awk -F '/' '{print $NF}'`
+AFD_LABEL=${DG_NAME}_${MPATH_NAME}
+if [[ -z `blkid | grep TYPE="oracleasm" | grep $disk` && -z `blkid | grep $disk` ]]
+then
+echo Disk $disk not being used by ASM or system...
+echo "Labelling disk $disk now..."
+export ORACLE_BASE=/tmp
+if [[ $AFD_STATE == 0 ]]
+then
+echo "$CRS_HOME/bin/asmcmd afd_label $AFD_LABEL $disk --init"
+$CRS_HOME/bin/asmcmd afd_label ${AFD_LABEL} ${disk} --init
+else
+echo "$CRS_HOME/bin/asmcmd afd_label $AFD_LABEL $disk"
+$CRS_HOME/bin/asmcmd afd_label ${AFD_LABEL} ${disk}
+fi
+#echo "$ORACLE_HOME/bin/asmcmd afd_label $AFD_LABEL $disk"
+#echo "$ORACLE_HOME/bin/asmcmd afd_label ${AFD_LABEL} $disk"
+echo "Disk $disk labelled as --> $AFD_LABEL"
+if [[ -z $DISK_LIST ]]; then
+DISK_LIST=\'AFD:${AFD_LABEL}\'
+else
+DISK_LIST=$DISK_LIST,\'AFD:${AFD_LABEL}\'
+fi
+unset ORACLE_BASE
+else
+echo Disk $disk being used by ASM or system...
+echo skipping disk $disk...
+du_count+=1
+fi
+done;
+echo "$du_count disk(s) either being used by oracleasm or by the system."
+echo $DISK_LIST
+
+export ORACLE_BASE=/tmp
+$CRS_HOME/bin/asmcmd afd_lsdsk | grep -i ${DG_NAME}
+unset ORACLE_BASE
+
+#-----------------------------
+
+#echo "su -c \"$CRS_HOME/bin/asmca -silent -createDiskGroup -diskGroupName ${DG_NAME} -diskList ${DISK_LIST} -redundancy EXTERNAL -au_size 4 -compatible.asm '19.0.0.0.0' -compatible.advm '19.0.0.0.0'\" - grid"
+
+#echo "su -c \"$CRS_HOME/bin/asmca -silent -createDiskGroup -diskGroupName ${DG_NAME} -diskList ${DISK_LIST} -redundancy EXTERNAL -au_size 4 -compatible.asm '19.0.0.0.0' -compatible.advm '19.0.0.0.0' -compatible.rdbms '12.2.0.1.0' -logical_sector_size '${DG_LOGICAL_SS}'\" - grid"
+
+#su -c "$CRS_HOME/bin/asmca -silent -createDiskGroup -diskGroupName ${DG_NAME} -diskList ${DISK_LIST} -redundancy EXTERNAL -au_size 4 -compatible.asm '19.0.0.0.0' -compatible.advm '19.0.0.0.0' -compatible.rdbms '12.2.0.1.0' -logical_sector_size '${DG_LOGICAL_SS}'" - grid
+
+su -c "export ORAENV_ASK=NO
+export ORACLE_SID=${ASM_INST}
+. oraenv
+unset ORAENV_ASK
+echo \"\$ORACLE_HOME/bin/sqlplus / as sysasm << EOF
+CREATE DISKGROUP ${DG_NAME} EXTERNAL REDUNDANCY DISK ${DISK_LIST} attribute 'compatible.asm'='19.0','compatible.rdbms'='12.1','au_size'='4M','LOGICAL_SECTOR_SIZE'='${DG_LOGICAL_SS}';
+exit
+EOF"\" - grid
+
+su -c "export ORAENV_ASK=NO
+export ORACLE_SID=${ASM_INST}
+. oraenv
+unset ORAENV_ASK
+\$ORACLE_HOME/bin/sqlplus / as sysasm << EOF
+CREATE DISKGROUP ${DG_NAME} EXTERNAL REDUNDANCY DISK ${DISK_LIST} attribute 'compatible.asm'='19.0','compatible.rdbms'='12.1','au_size'='4M','LOGICAL_SECTOR_SIZE'='${DG_LOGICAL_SS}';
+select name,sector_size from v\\\$asm_diskgroup;
+EOF" - grid
+
+export ORACLE_BASE=/tmp
+$CRS_HOME/bin/asmcmd afd_lsdsk | grep -i ${DG_NAME}
+unset ORACLE_BASE

@@ -1,0 +1,37 @@
+gridSetup.sh -silent INVENTORY_LOCATION=/u01/app/oraInventory \
+oracle.install.option=CRS_CONFIG \
+ORACLE_BASE=/u01/app/oracle \
+oracle.install.asm.OSDBA=asmdba \
+oracle.install.asm.OSOPER=asmoper \
+oracle.install.asm.OSASM=asmadmin \
+oracle.install.crs.config.scanType=LOCAL_SCAN \
+oracle.install.crs.config.gpnp.scanName=oramke1p-scan.compute.ge-healthcare.net \
+oracle.install.crs.config.gpnp.scanPort=1521 \
+oracle.install.crs.config.ClusterConfiguration=STANDALONE \
+oracle.install.crs.config.configureAsExtendedCluster=false \
+oracle.install.crs.config.clusterName=oramke1p \
+oracle.install.crs.config.gpnp.configureGNS=false \
+oracle.install.crs.config.autoConfigureClusterNodeVIP=false \
+oracle.install.crs.config.clusterNodes=usmkelporarac01.compute.ge-healthcare.net:usmkelporarac01-vip.compute.ge-healthcare.net,usmkelporarac02.compute.ge-healthcare.net:usmkelporarac02-vip.compute.ge-healthcare.net \
+oracle.install.crs.config.networkInterfaceList=ens6f0np0:192.168.0.0:5,ens6f1np1:192.168.0.0:3,bond0:10.21.138.0:1 \
+oracle.install.crs.configureGIMR=true \
+oracle.install.asm.configureGIMRDataDG=true \
+oracle.install.crs.config.storageOption=FLEX_ASM_STORAGE \
+oracle.install.crs.config.useIPMI=false \
+oracle.install.asm.SYSASMPassword=Wa1lY_f06ce \
+oracle.install.asm.diskGroup.name=USMKE1POCR_DG \
+oracle.install.asm.diskGroup.redundancy=EXTERNAL \
+oracle.install.asm.diskGroup.AUSize=4 \
+oracle.install.asm.diskGroup.disks=/dev/mapper/mpathc \
+oracle.install.asm.diskGroup.diskDiscoveryString=/dev/mapper/mpath*
+oracle.install.asm.monitorPassword=Wa1lY_f06ce \
+oracle.install.asm.gimrDG.name=USMKE1PMGMT_DG \
+oracle.install.asm.gimrDG.redundancy=EXTERNAL \
+oracle.install.asm.gimrDG.AUSize=4 \
+oracle.install.asm.gimrDG.disks=/dev/mapper/mpathd \
+oracle.install.asm.configureAFD=true \
+oracle.install.crs.rootconfig.executeRootScript=false
+
+
+
+

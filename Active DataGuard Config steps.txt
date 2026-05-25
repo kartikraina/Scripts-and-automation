@@ -1,0 +1,41 @@
+1) Check below parameter and set it to FALSE in both primary and standby:
+
+alter system set DG_BROKER_START=FALSE sid='*';
+
+2) Set dg broker config files path preferably outside of Oracle HOME:
+
+Primary:
+
+alter system set DG_BROKER_CONFIG_FILE1='+PRDEC2_DG/PRDEC2/DATAGUARDCONFIG/dr1prdec2.dat' sid='*';
+alter system set DG_BROKER_CONFIG_FILE2='+PRDEC2_LOG_DG/PRDEC2/DATAGUARDCONFIG/dr2prdec2.dat' sid='*';
+
+Standby:
+
+alter system set DG_BROKER_CONFIG_FILE1='+DREC2_DG/DREC2/DATAGUARDCONFIG/dr1drec2.dat' sid='*';
+alter system set DG_BROKER_CONFIG_FILE2='+DREC2_LOG_DG/DREC2/DATAGUARDCONFIG/dr2drec2.dat' sid='*';
+
+
+3) Set DG_BROKER_START=TRUE in both Primary and standby to start the DMON processes.
+
+4) On the primary server, issue the following command to register the primary server with the broker.
+dgmgrl sys/<password>@primary_db_dns
+
+create configuration mws_adg_config as primary database is prdec2 connect identifier is '(DESCRIPTION=(CONNECT_DATA=(SERVICE_NAME=prdec2))(ADDRESS=(PROTOCOL=tcp)(HOST=10.204.232.42)(PORT=1521)))';
+
+add database drec2 as connect identifier is '(DESCRIPTION=(CONNECT_DATA=(SERVICE_NAME=drec2))(ADDRESS=(PROTOCOL=tcp)(HOST=10.204.242.214)(PORT=1521)))';
+
+enable configuration;
+
+show configuration;
+
+-- Stop managed recovery.
+alter database recover managed standby database cancel;
+
+alter database open read only;
+
+-- Start managed recovery.
+alter database recover managed standby database disconnect;
+
+
+
+

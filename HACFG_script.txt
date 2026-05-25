@@ -1,0 +1,349 @@
+unzip the binaries in one location except Opatch binary and Homes binary.
+
+-- local node -----
+export DB_HOME=/u01/app/oracle/product/19.3.0.0/dbee_1
+export CRS_HOME=/u01/app/19.3.0.0/grid
+export O_BASE=/u01/app/oracle
+ORACLE_USER=oracle
+GRID_USER=grid
+ORA_INVENTORY=/u01/app/oraInventory
+BINARY_LOC=/u01/media
+CRS_HOME_ZIP=LINUX.X64_193000_grid_home.zip
+DB_HOME_ZIP=LINUX.X64_193000_db_home.zip
+RU_PATCH=36233126
+#DB_PATCH=36233263
+JDK_PATCH=36195566
+OPATCH_ZIP=p6880880_122010_Linux-x86-64.zip
+OCR_DISK_LIST_PATH=${BINARY_LOC}/ocr_disk_list
+OCR_DG_PREFIX=system
+DG_DISCOVERY_STR=/dev
+LOG_DISK_LIST_PATH=
+DATA_DG_LIST_PATH=
+
+if [[ `cat /etc/passwd | grep $ORACLE_USER:` == '' ]]; then
+echo "$ORACLE_USER user doesn't exist"
+echo "Creating user $ORACLE_USER..."
+echo "useradd $ORACLE_USER"
+useradd $ORACLE_USER
+ora_uid=`su -c "echo \\\$UID" - $ORACLE_USER`
+echo "User $ORACLE_USER created with UID $ora_uid."
+else
+echo $ORACLE_USER user already exists.
+fi
+
+if [[ `cat /etc/passwd | grep $GRID_USER:` == '' ]]; then
+echo "$GRID_USER user doesn't exist"
+echo "Creating user $GRID_USER..."
+echo "useradd $GRID_USER"
+useradd $GRID_USER
+grid_uid=`su -c "echo \\\$UID" - $GRID_USER`
+echo "User $GRID_USER created with UID $grid_uid."
+else
+echo $GRID_USER user already exists.
+fi
+
+
+echo Creating required groups...
+
+sh -c 'groupadd -g 54321 oinstall && groupadd -g 54322 dba && groupadd -g 54323 oper && groupadd -g 54324 backupdba && groupadd -g 54325 dgdba && groupadd -g 54326 kmdba && groupadd -g 54327 asmdba && groupadd -g 54328 asmoper && groupadd -g 54329 asmadmin && groupadd -g 54330 racdba'
+
+echo Group creation completed.
+
+echo assigning necessary groups to $GRID_USER user...
+usermod -g oinstall -a -G dba,asmdba,asmoper,asmadmin,racdba $GRID_USER
+echo assigning necessary groups to $ORACLE_USER user...
+usermod -g oinstall -a -G dba,oper,backupdba,dgdba,kmdba,asmdba,asmoper,asmadmin,racdba $ORACLE_USER
+
+cp -p /home/grid/.bash_profile /home/grid/.bash_profile_bak_`date +%d%b%H%M`
+
+cat > /home/grid/.bash_profile << !
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+
+# User specific environment and startup programs
+umask 22
+export CV_ASSUME_DISTID=OEL7.8
+export TMP=/tmp
+export TMPDIR=\$TMP
+export ORACLE_BASE=$O_BASE
+export ORACLE_HOME=$CRS_HOME
+export PATH=\$ORACLE_HOME/bin:\$ORACLE_HOME:\$ORACLE_HOME/OPatch:\$PATH;
+export LD_LIBRARY_PATH=\$ORACLE_HOME/lib:/lib:/usr/lib
+export CLASSPATH=\$ORACLE_HOME/JRE:\$ORACLE_HOME/jlib:\$ORACLE_HOME/rdbms/jlib
+export ORA_INVENTORY=$ORA_INVENTORY
+!
+
+cp -p /home/oracle/.bash_profile /home/oracle/.bash_profile_bak_`date +%d%b%H%M`
+
+cat > /home/oracle/.bash_profile << !
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+
+# User specific environment and startup programs
+umask 22
+export CV_ASSUME_DISTID=OEL7.8
+export TMP=/tmp
+export TMPDIR=\$TMP
+export ORACLE_BASE=$O_BASE
+export ORACLE_HOME=$DB_HOME
+export PATH=\$ORACLE_HOME/bin:\$ORACLE_HOME/OPatch:\$ORACLE_HOME:\$PATH
+export LD_LIBRARY_PATH=\$ORACLE_HOME/lib:/lib:/usr/lib
+export CLASSPATH=\$ORACLE_HOME/JRE:\$ORACLE_HOME/jlib:\$ORACLE_HOME/rdbms/jlib
+export ORA_INVENTORY=$ORA_INVENTORY
+!
+
+echo installing necessary os modules...
+yum install -y bc
+yum install -y binutils
+yum install -y compat-libcap1
+yum install -y compat-libstdc++-33
+yum install -y dtrace-modules
+yum install -y dtrace-modules-headers
+yum install -y dtrace-modules-provider-headers
+yum install -y dtrace-utils
+yum install -y elfutils-libelf
+yum install -y elfutils-libelf-devel
+yum install -y fontconfig-devel
+yum install -y glibc
+yum install -y glibc-devel
+yum install -y ksh
+yum install -y libaio
+yum install -y libaio-devel
+yum install -y libdtrace-ctf-devel
+yum install -y libXrender
+yum install -y libXrender-devel
+yum install -y libX11
+yum install -y libXau
+yum install -y libXi
+yum install -y libXtst
+yum install -y libgcc
+yum install -y librdmacm-devel
+yum install -y libstdc++
+yum install -y libstdc++-devel
+yum install -y libxcb
+yum install -y make
+yum install -y net-tools
+yum install -y nfs-utils
+yum install -y python
+yum install -y python-configshell
+yum install -y python-rtslib
+yum install -y python-six
+yum install -y targetcli
+yum install -y smartmontools
+yum install -y sysstat
+yum install -y libnsl
+yum install -y libnsl.i686
+yum install -y libnsl2
+yum install -y libnsl2.i686
+yum install -y oracle-database-preinstall-19c
+yum install -y gcc-c++
+yum install -y gcc make perl
+
+echo systemctl stop avahi-daemon
+systemctl stop avahi-daemon
+echo systemctl disable avahi-daemon
+systemctl disable avahi-daemon
+echo systemctl stop firewalld
+systemctl stop firewalld
+echo systemctl disable firewalld
+systemctl disable firewalld
+
+echo Updating Selinux...
+cp -p /etc/selinux/config /etc/selinux/config_bak_`date +%d%b%H%M`
+sed -i 's/SELINUX=/#SELINUX=/g' /etc/selinux/config
+echo SELINUX=permissive | cat >> /etc/selinux/config
+
+#cat /etc/selinux/config
+
+setenforce Permissive
+
+#getenforce --> should give output as "Permissive"
+
+cp -p /etc/security/limits.conf /etc/security/limits.conf_bak_`date +%d%b%H%M`
+
+cat >> /etc/security/limits.conf << EOF
+$GRID_USER   soft   stack    10240
+$ORACLE_USER soft   stack    10240
+$GRID_USER   hard   stack    32768
+$ORACLE_USER hard   stack    32768
+$GRID_USER   soft   memlock  unlimited
+$ORACLE_USER soft   memlock  unlimited
+$GRID_USER   hard   memlock  unlimited
+$ORACLE_USER hard   memlock  unlimited
+EOF
+
+----------------------------------------------------------------------------------------------
+
+mkdir -p $O_BASE && mkdir -p $O_BASE/admin && chmod 775 -R /u01 && chown -R oracle:oinstall /u01
+
+su -c "mkdir -p $CRS_HOME" - $GRID_USER  --- only on node-1
+
+su -c "mkdir -p $DB_HOME" - $ORACLE_USER -- only on node-1
+
+mkdir -p /u01/media && chmod 777 /u01/media
+
+echo "su -c \"unzip -d $CRS_HOME $BINARY_LOC/$CRS_HOME_ZIP\" - $GRID_USER"
+
+su -c "unzip -d $CRS_HOME $BINARY_LOC/$CRS_HOME_ZIP" - $GRID_USER
+
+echo "su -c \"unzip -d $DB_HOME $BINARY_LOC/$DB_HOME_ZIP\" - $ORACLE_USER"
+
+su -c "unzip -d $DB_HOME $BINARY_LOC/$DB_HOME_ZIP" - $ORACLE_USER
+
+su -c "mv $CRS_HOME/OPatch $CRS_HOME/OPatch_old" - $GRID_USER
+
+su -c "mv $DB_HOME/OPatch $DB_HOME/OPatch_old" - $ORACLE_USER
+
+su -c "unzip -d $CRS_HOME $BINARY_LOC/$OPATCH_ZIP" - $GRID_USER
+
+su -c "unzip -d $DB_HOME $BINARY_LOC/$OPATCH_ZIP" - $ORACLE_USER
+
+rpm -ivh $CRS_HOME/cv/rpm/cvuqdisk-1.0.10-1.rpm
+
+su -c "$CRS_HOME/runcluvfy.sh stage -pre hacfg -verbose" - $GRID_USER
+
+nohup su -c "$CRS_HOME/gridSetup.sh -silent -applyRU $BINARY_LOC/$RU_PATCH -applyOneOffs $BINARY_LOC/$JDK_PATCH INVENTORY_LOCATION=$ORA_INVENTORY \
+oracle.install.option=CRS_SWONLY \
+ORACLE_BASE=$O_BASE \
+oracle.install.asm.OSDBA=asmdba \
+oracle.install.asm.OSOPER=asmoper \
+oracle.install.asm.OSASM=asmadmin \
+oracle.install.config.managementOption=NONE \
+oracle.install.crs.rootconfig.executeRootScript=false" - $GRID_USER >> /tmp/${GRID_USER}_crs_so.out &
+
+$ORA_INVENTORY/orainstRoot.sh
+
+$CRS_HOME/root.sh
+
+nohup su -c "$DB_HOME/runInstaller -executePrereqs -silent \
+oracle.install.option=INSTALL_DB_SWONLY \
+UNIX_GROUP_NAME=oinstall \
+INVENTORY_LOCATION=$ORA_INVENTORY \
+ORACLE_BASE=$O_BASE \
+oracle.install.db.InstallEdition=EE \
+oracle.install.db.OSDBA_GROUP=dba \
+oracle.install.db.OSOPER_GROUP=oinstall \
+oracle.install.db.OSBACKUPDBA_GROUP=dba \
+oracle.install.db.OSDGDBA_GROUP=dba \
+oracle.install.db.OSKMDBA_GROUP=kmdba \
+oracle.install.db.OSRACDBA_GROUP=racdba \
+oracle.install.db.rootconfig.executeRootScript=false" - $ORACLE_USER >> /tmp/${ORACLE_USER}_db_so.out &
+
+nohup su -c "$DB_HOME/runInstaller -silent -applyRU $BINARY_LOC/$RU_PATCH -applyOneOffs $BINARY_LOC/$JDK_PATCH \
+oracle.install.option=INSTALL_DB_SWONLY \
+UNIX_GROUP_NAME=oinstall \
+INVENTORY_LOCATION=$ORA_INVENTORY \
+ORACLE_BASE=$O_BASE \
+oracle.install.db.InstallEdition=EE \
+oracle.install.db.OSDBA_GROUP=dba \
+oracle.install.db.OSOPER_GROUP=oinstall \
+oracle.install.db.OSBACKUPDBA_GROUP=dba \
+oracle.install.db.OSDGDBA_GROUP=dba \
+oracle.install.db.OSKMDBA_GROUP=kmdba \
+oracle.install.db.OSRACDBA_GROUP=racdba \
+oracle.install.db.rootconfig.executeRootScript=false" - $ORACLE_USER >> /tmp/${ORACLE_USER}_db_so.out &
+
+
+$DB_HOME/root.sh
+
+-------------------------------------------------------------------------------------------
+
+OCR_DISK_LIST=''
+
+#Labelling the OCR disks...
+
+#Check if AFD is installed or not...
+
+if [[ `nohup $CRS_HOME/bin/asmcmd afd_state | grep -i ASMCMD-9526` == '' ]]
+then
+AFD_STATE=0
+else
+AFD_STATE=1
+fi
+
+#Label Disks ....
+
+for disk in `cat $OCR_DISK_LIST_PATH`;
+do
+MPATH_NAME=`echo ${disk} | awk -F '/' '{print $NF}'`
+AFD_LABEL=${OCR_DG_PREFIX}_${MPATH_NAME}
+#echo "$AFD_LABEL"
+if [[ `blkid | grep TYPE="oracleasm" | grep $disk` == '' && `blkid | grep $disk` == '' ]]
+then
+echo Disk $disk not being used by ASM.
+echo "Labelling ocr disk $disk now..."
+export ORACLE_BASE=/tmp
+if [[ $AFD_STATE == 0 ]]
+then
+echo "$CRS_HOME/bin/asmcmd afd_label $AFD_LABEL $disk --init"
+$CRS_HOME/bin/asmcmd afd_label ${AFD_LABEL} ${disk} --init
+else
+echo "$CRS_HOME/bin/asmcmd afd_label $AFD_LABEL $disk"
+$CRS_HOME/bin/asmcmd afd_label ${AFD_LABEL} ${disk}
+fi
+echo "OCR Disk $disk labelled as --> $AFD_LABEL"
+chown grid:asmadmin $disk
+if [[ $OCR_DISK_LIST == '' ]]; then
+OCR_DISK_LIST=$disk
+else
+OCR_DISK_LIST=$OCR_DISK_LIST,${disk}
+fi
+unset ORACLE_BASE
+else
+echo Disk $disk is being used by ASM already.
+echo skipping disk $disk..
+fi
+done;
+
+
+
+-------------------------------------------------------------------------------------------
+
+HA_CFG_RSP=$BINARY_LOC/${GRID_USER}_HA_CONFIG.rsp
+
+cat > $HA_CFG_RSP << !
+
+oracle.install.responseFileVersion=/oracle/install/rspfmt_crsinstall_response_schema_v19.0.0
+INVENTORY_LOCATION=$ORA_INVENTORY
+oracle.install.option=HA_CONFIG
+ORACLE_BASE=$O_BASE
+oracle.install.asm.OSDBA=asmdba
+oracle.install.asm.OSOPER=asmoper
+oracle.install.asm.OSASM=asmadmin
+oracle.install.crs.config.scanType=LOCAL_SCAN
+oracle.install.crs.config.ClusterConfiguration=STANDALONE
+oracle.install.crs.configureGIMR=false
+oracle.install.asm.SYSASMPassword=Stu2N1g_D6a
+oracle.install.asm.diskGroup.name=${OCR_DG_PREFIX}_DG
+oracle.install.asm.diskGroup.redundancy=EXTERNAL
+oracle.install.asm.diskGroup.AUSize=4
+oracle.install.asm.diskGroup.disks=$OCR_DISK_LIST
+oracle.install.asm.diskGroup.diskDiscoveryString=$DG_DISCOVERY_STR/*
+oracle.install.asm.monitorPassword=Stu2N1g_D6a
+oracle.install.asm.configureAFD=true
+oracle.install.crs.rootconfig.executeRootScript=false
+!
+
+chmod 777 $HA_CFG_RSP
+-----------------------------------------------------------------------------------------------
+
+su -c "$CRS_HOME/gridSetup.sh -silent -responseFile $HA_CFG_RSP" - $GRID_USER
+
+nohup $CRS_HOME/root.sh >> /tmp/rootsh.out &
+
+#tail -f /var/log/messages
+
+#$CRS_HOME/bin/crsctl stat res -t -init
+
+su -c "$CRS_HOME/gridSetup.sh -silent -responseFile $HA_CFG_RSP -executeConfigTools" - $GRID_USER
+
+
+

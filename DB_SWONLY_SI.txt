@@ -1,0 +1,313 @@
+#--unzip the patch binaries in one location except Opatch binary and HOME zips.
+#--Make sure the Physical memory is at least 8 GB.
+#--Make sure the swap is atleaset 1 GB usable (preferably 16GB).
+#--Make sure /u01 is available.
+# leave CRS_HOME empty if CRS is not installed
+
+## This will be applicable for DB version 18c and higher.
+
+
+##-----------------PARAMETERS------------------------------------##
+CRS_HOME=
+#DB_VERSION=19.3.0.0
+DB_HOME=/u01/app/oracle/product/19.3.0.0/dbee_1
+BINARY_LOC=/u01
+DB_HOME_ZIP=
+RU_PATCH=
+JDK_PATCH=
+OPATCH_ZIP=
+DBA_ADMIN_DIR=/u01/app/oracle/admin
+DB_HOME_TAR=db_home_19.30.x.tar
+##---------------------------------------------------------------##
+
+export O_BASE=/u01/app/oracle
+ORACLE_USER=oracle
+GRID_USER=grid
+ORA_INVENTORY=/u01/app/oraInventory
+
+#mkdir -p $BINARY_LOC
+
+#chmod 777 $BINARY_LOC
+
+chmod 777 $BINARY_LOC/$DB_HOME_ZIP
+chmod 777 $BINARY_LOC/$OPATCH_ZIP
+chmod 777 -R $BINARY_LOC/$RU_PATCH
+chmod 777 -R $BINARY_LOC/$JDK_PATCH
+
+chmod 777 $BINARY_LOC/$DB_HOME_TAR
+
+
+nohup sh -c "yum install -y bc
+yum install -y binutils
+yum install -y compat-libcap1
+yum install -y compat-libstdc++-33
+yum install -y dtrace-modules
+yum install -y dtrace-modules-headers
+yum install -y dtrace-modules-provider-headers
+yum install -y dtrace-utils
+yum install -y elfutils-libelf
+yum install -y elfutils-libelf-devel
+yum install -y fontconfig-devel
+yum install -y glibc
+yum install -y glibc-devel
+yum install -y ksh
+yum install -y libaio
+yum install -y libaio-devel
+yum install -y libdtrace-ctf-devel
+yum install -y libXrender
+yum install -y libXrender-devel
+yum install -y libX11
+yum install -y libXau
+yum install -y libXi
+yum install -y libXtst
+yum install -y libgcc
+yum install -y librdmacm-devel
+yum install -y libstdc++
+yum install -y libstdc++-devel
+yum install -y libxcb
+yum install -y make
+yum install -y net-tools
+yum install -y nfs-utils
+yum install -y python
+yum install -y python-configshell
+yum install -y python-rtslib
+yum install -y python-six
+yum install -y targetcli
+yum install -y smartmontools
+yum install -y sysstat
+yum install -y libnsl
+yum install -y libnsl.i686
+yum install -y libnsl2
+yum install -y libnsl2.i686
+yum install -y gcc-c++
+yum install -y unzip telnet 
+yum install -y gcc make perl
+yum install -y compat-openssl11
+yum install -y fontconfig
+yum install -y libasan
+yum install -y liblsan
+yum install -y libvirt-libs
+yum install -y librdmacm
+yum install -y libibverbs
+yum install -y policycoreutils
+yum install -y policycoreutils-python-utils
+yum install -y glibc-headers
+yum install -y ipmiutil
+yum install -y libnsl2
+yum install -y libnsl2-devel
+yum install -y net-tools
+yum install -y nfs-utils
+yum install -y unixODBC unixODBC-devel" >> $BINARY_LOC/yum_out_${ORACLE_USER}.log &
+
+systemctl stop sssd
+
+if [[ `cat /etc/passwd | grep $ORACLE_USER:` == '' && `id $ORACLE_USER` == '' ]]; then
+echo "$ORACLE_USER user doesn't exist"
+echo "Creating user $ORACLE_USER..."
+echo "useradd $ORACLE_USER"
+useradd $ORACLE_USER
+ora_uid=`su -c "echo \\\$UID" - $ORACLE_USER`
+echo "User $ORACLE_USER created with UID $ora_uid."
+else
+echo $ORACLE_USER user already exists.
+fi
+
+if [[ -z `cat /etc/passwd | grep $GRID_USER:` && -z `id $GRID_USER` ]]; then
+echo "$GRID_USER user doesn't exist"
+echo "Creating user $GRID_USER..."
+echo "useradd $GRID_USER"
+useradd $GRID_USER
+grid_uid=`su -c "echo \\\$UID" - $GRID_USER`
+echo "User $GRID_USER created with UID $grid_uid."
+else
+echo $GRID_USER user already exists.
+fi
+
+systemctl start sssd
+
+sh -c "groupadd -g 54321 oinstall
+groupadd -g 54322 dba
+groupadd -g 54323 oper
+groupadd -g 54324 backupdba
+groupadd -g 54325 dgdba
+groupadd -g 54326 kmdba
+groupadd -g 54327 asmdba
+groupadd -g 54328 asmoper
+groupadd -g 54329 asmadmin
+groupadd -g 54330 racdba"
+
+echo assigning necessary groups to $ORACLE_USER user...
+usermod -g oinstall -G dba,oper,backupdba,dgdba,kmdba,asmdba,asmoper,asmadmin,racdba $ORACLE_USER
+
+echo assigning necessary groups to $GRID_USER user...
+usermod -g oinstall -G dba,asmdba,asmoper,asmadmin,racdba $GRID_USER
+
+## -- For Linux 8 -- ##
+curl -o $BINARY_LOC/oracle-database-preinstall-19c-1.0-2.el8.x86_64.rpm https://yum.oracle.com/repo/OracleLinux/OL8/appstream/x86_64/getPackage/oracle-database-preinstall-19c-1.0-1.el8.x86_64.rpm
+yum -y localinstall $BINARY_LOC/oracle-database-preinstall-19c-1.0-2.el8.x86_64.rpm
+dnf -y localinstall $BINARY_LOC/oracle-database-preinstall-19c-1.0-2.el8.x86_64.rpm
+
+
+## -- For Linux 9 -- ##
+curl -o $BINARY_LOC/oracle-database-preinstall-19c-1.0-1.el9.x86_64.rpm https://yum.oracle.com/repo/OracleLinux/OL9/appstream/x86_64/getPackage/oracle-database-preinstall-19c-1.0-1.el9.x86_64.rpm
+yum -y localinstall $BINARY_LOC/oracle-database-preinstall-19c-1.0-1.el9.x86_64.rpm
+dnf -y localinstall $BINARY_LOC/oracle-database-preinstall-19c-1.0-1.el9.x86_64.rpm
+
+
+cp -p /home/oracle/.bash_profile /home/oracle/.bash_profile_bak_`date +%d%b%H%M`
+
+cat > /home/oracle/.bash_profile << !
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+
+# User specific environment and startup programs
+umask 22
+#export CV_ASSUME_DISTID=OEL7.8
+export TMP=/tmp
+export TMPDIR=\$TMP
+export ORACLE_BASE=$O_BASE
+export ORACLE_HOME=$DB_HOME
+export PATH=\$ORACLE_HOME/bin:\$ORACLE_HOME/OPatch:\$ORACLE_HOME:\$PATH
+export LD_LIBRARY_PATH=\$ORACLE_HOME/lib:/lib:/usr/lib
+export CLASSPATH=\$ORACLE_HOME/JRE:\$ORACLE_HOME/jlib:\$ORACLE_HOME/rdbms/jlib
+export ORA_INVENTORY=$ORA_INVENTORY
+!
+
+echo systemctl stop avahi-daemon
+systemctl stop avahi-daemon
+echo systemctl disable avahi-daemon
+systemctl disable avahi-daemon
+echo systemctl stop firewalld
+systemctl stop firewalld
+echo systemctl disable firewalld
+systemctl disable firewalld
+
+
+echo Updating Selinux...
+cp -p /etc/selinux/config /etc/selinux/config_bak_`date +%d%b%H%M`
+sed -i 's/SELINUX=/#SELINUX=/g' /etc/selinux/config
+echo SELINUX=permissive | cat >> /etc/selinux/config
+
+#cat /etc/selinux/config
+
+setenforce Permissive
+
+#getenforce --> should give output as "Permissive"
+
+#--------------------------------------------------------------------------
+
+sh -c "mkdir -p $O_BASE
+mkdir -p $DBA_ADMIN_DIR
+chown oracle:oinstall $O_BASE
+chmod 775 $O_BASE
+chown oracle:oinstall $DBA_ADMIN_DIR
+chmod 775 $DBA_ADMIN_DIR
+chown oracle:oinstall /u01
+chmod 775 /u01
+chown oracle:oinstall /u01/app
+chmod 775 /u01/app"
+
+su -c "mkdir -p $DB_HOME" - $ORACLE_USER # --- only on node-1
+
+#mkdir -p /u01/media; chmod 777 /u01/media
+#--------------------------------------------------------------------------
+
+echo "su -c \"unzip -d $DB_HOME $BINARY_LOC/$DB_HOME_ZIP\" - $ORACLE_USER"
+
+su -c "unzip -d $DB_HOME $BINARY_LOC/$DB_HOME_ZIP" - $ORACLE_USER
+
+su -c "mv $DB_HOME/OPatch $DB_HOME/OPatch_old" - $ORACLE_USER
+
+su -c "unzip -d $DB_HOME $BINARY_LOC/$OPATCH_ZIP" - $ORACLE_USER
+
+#-----------------------------------OR (HOME CLONE)------------------------------------------
+
+tar -xvpf ${BINARY_LOC}/${DB_HOME_TAR} -C ${DB_HOME}
+
+#---------------------------------------------------------------------------------------------
+
+rpm -ivh $DB_HOME/cv/rpm/cvuqdisk-1.0.10-1.rpm
+
+su -c "$DB_HOME/runInstaller -executePrereqs -silent \
+oracle.install.option=INSTALL_DB_SWONLY \
+UNIX_GROUP_NAME=oinstall \
+INVENTORY_LOCATION=$ORA_INVENTORY \
+ORACLE_BASE=$O_BASE \
+oracle.install.db.InstallEdition=EE \
+oracle.install.db.OSDBA_GROUP=dba \
+oracle.install.db.OSOPER_GROUP=oinstall \
+oracle.install.db.OSBACKUPDBA_GROUP=dba \
+oracle.install.db.OSDGDBA_GROUP=dba \
+oracle.install.db.OSKMDBA_GROUP=kmdba \
+oracle.install.db.OSRACDBA_GROUP=racdba \
+oracle.install.db.rootconfig.executeRootScript=false" - $ORACLE_USER 
+-----------------------------------------------------------------------------------------------------------------
+su -c "$DB_HOME/runInstaller -silent -applyRU $BINARY_LOC/$RU_PATCH -applyOneOffs $BINARY_LOC/$JDK_PATCH \
+oracle.install.option=INSTALL_DB_SWONLY \
+UNIX_GROUP_NAME=oinstall \
+INVENTORY_LOCATION=$ORA_INVENTORY \
+ORACLE_BASE=$O_BASE \
+oracle.install.db.InstallEdition=EE \
+oracle.install.db.OSDBA_GROUP=dba \
+oracle.install.db.OSOPER_GROUP=oinstall \
+oracle.install.db.OSBACKUPDBA_GROUP=dba \
+oracle.install.db.OSDGDBA_GROUP=dba \
+oracle.install.db.OSKMDBA_GROUP=kmdba \
+oracle.install.db.OSRACDBA_GROUP=racdba \
+oracle.install.db.rootconfig.executeRootScript=false" - $ORACLE_USER >> $BINARY_LOC/${ORACLE_USER}_db_so.out 2>&1 &
+
+$ORA_INVENTORY/orainstRoot.sh
+
+$DB_HOME/root.sh
+
+
+------------------------------------- OR (HOME CLONE) ---------------------------------------------------
+
+new ----
+
+su -c "$DB_HOME/runInstaller -silent \
+oracle.install.option=INSTALL_DB_SWONLY \
+UNIX_GROUP_NAME=oinstall \
+INVENTORY_LOCATION=$ORA_INVENTORY \
+ORACLE_BASE=$O_BASE \
+oracle.install.db.InstallEdition=EE \
+oracle.install.db.OSDBA_GROUP=dba \
+oracle.install.db.OSOPER_GROUP=oinstall \
+oracle.install.db.OSBACKUPDBA_GROUP=dba \
+oracle.install.db.OSDGDBA_GROUP=dba \
+oracle.install.db.OSKMDBA_GROUP=kmdba \
+oracle.install.db.OSRACDBA_GROUP=racdba \
+oracle.install.db.rootconfig.executeRootScript=false" - $ORACLE_USER >> $BINARY_LOC/${ORACLE_USER}_db_so_clone.out 2>&1 &
+
+$ORA_INVENTORY/orainstRoot.sh
+
+$DB_HOME/root.sh
+
+===========================================================================================================
+
+#------------------------------------------------------------------------------------------------
+
+#Post steps:
+
+#1) Add symlinks for sqlnet.ora,listener.ora and tnsnames.ora
+
+su -c "touch $DB_HOME/network/admin/tnsnames.ora" - $ORACLE_USER
+
+#ln -s $CRS_HOME/network/admin/sqlnet.ora $DB_HOME/network/admin/sqlnet.ora
+
+#ln -s $CRS_HOME/network/admin/listener.ora $DB_HOME/network/admin/listener.ora
+
+su -c "cat >> $DB_HOME/network/admin/sqlnet.ora << !
+SQLNET.ALLOWED_LOGON_VERSION_SERVER=8
+SQLNET.ALLOWED_LOGON_VERSION_CLIENT=11
+!
+" - $ORACLE_USER
+
+
+
+
+su -c "${DB_HOME}/perl/bin/perl ${DB_HOME}/clone/bin/clone.pl ORACLE_BASE=\"${O_BASE}\" ORACLE_HOME=\"${DB_HOME}\" ORA_INVENTORY=\"${ORA_INVENTORY}\" OSDBA_GROUP=dba OSOPER_GROUP=oper OSBACKUPDBA_GROUP=backupdba OSDGDBA_GROUP=dgdba OSKMDBA_GROUP=kmdba OSRACDBA_GROUP=racdba -defaultHomeName" - $ORACLE_USER

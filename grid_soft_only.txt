@@ -1,0 +1,8 @@
+$ORACLE_HOME/gridSetup.sh -silent INVENTORY_LOCATION=/u01/app/oraInventory \
+oracle.install.option=CRS_SWONLY \
+ORACLE_BASE=/u01/app/oracle \
+oracle.install.asm.OSDBA=asmdba \
+oracle.install.asm.OSOPER=asmoper \
+oracle.install.asm.OSASM=asmadmin \
+oracle.install.config.managementOption=NONE \
+oracle.install.crs.rootconfig.executeRootScript=false

@@ -1,0 +1,28 @@
+/u01/app/oracle/product/19.3.0.0/dbee_1/runInstaller -silent -applyRU /u01/media/37257886 -applyOneOffs /u01/media/37213431 -ignoreprereq oracle.install.option=INSTALL_DB_SWONLY \
+UNIX_GROUP_NAME=oinstall \
+INVENTORY_LOCATION=/u01/app/oraInventory \
+ORACLE_BASE=/u01/app/oracle \
+oracle.install.db.InstallEdition=EE \
+oracle.install.db.OSDBA_GROUP=dba \
+oracle.install.db.OSOPER_GROUP=oinstall \
+oracle.install.db.OSBACKUPDBA_GROUP=dba \
+oracle.install.db.OSDGDBA_GROUP=dba \
+oracle.install.db.OSKMDBA_GROUP=kmdba \
+oracle.install.db.OSRACDBA_GROUP=racdba \
+oracle.install.db.rootconfig.executeRootScript=false \
+oracle.install.db.CLUSTER_NODES=usmkelsorarac03,usmkelsorarac04 >> /u01/media/oracle_db_so.out 2>&1 &
+
+--------------------------------------- HOME CLONE -------------------------------------------------------------------
+/u01/app/oracle/product/19.3.0.0/dbee_1/runInstaller -silent -ignoreprereq oracle.install.option=INSTALL_DB_SWONLY \
+UNIX_GROUP_NAME=oinstall \
+INVENTORY_LOCATION=/u01/app/oraInventory \
+ORACLE_BASE=/u01/app/oracle \
+oracle.install.db.InstallEdition=EE \
+oracle.install.db.OSDBA_GROUP=dba \
+oracle.install.db.OSOPER_GROUP=oinstall \
+oracle.install.db.OSBACKUPDBA_GROUP=dba \
+oracle.install.db.OSDGDBA_GROUP=dba \
+oracle.install.db.OSKMDBA_GROUP=kmdba \
+oracle.install.db.OSRACDBA_GROUP=racdba \
+oracle.install.db.rootconfig.executeRootScript=false \
+oracle.install.db.CLUSTER_NODES=frbuclporarac01,frbuclporarac02 >> /u01/media/oracle_db_so.out 2>&1 &

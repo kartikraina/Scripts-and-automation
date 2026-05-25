@@ -1,0 +1,55 @@
+#----------as root-------------#
+
+. oraenv
++ASM1
+export ORACLE_BASE=/tmp
+
+parted <device_path> mklabel msdos mkpart primary ext4 0% 100%
+asmcmd afd_label 
+
+
+
+
+DB=devmwsr2
+DB_HOME=/u01/app/oracle/product/19.3.0.0/dbee_1
+
+
+
+#------------------------------#
+
+su -c "echo devmwsr2:$DB_HOME:N >> /etc/oratab" - oracle
+
+su -c "echo ${DG_DB}1:$DB_HOME:N >> /etc/oratab" - oracle
+
+su -c "ssh usatlldorarac02 'echo ${DG_DB}2:$DB_HOME:N >> /etc/oratab'" - oracle
+
+su -c "ssh usatlldorarac02 'cat /etc/oratab'" - oracle
+
+echo brk1mes1:/u01/app/oracle/product/19.3.0.0/dbee_1:N >> /etc/oratab
+
+ssh usmkelsorarac02 'echo brk1mes2:/u01/app/oracle/product/19.3.0.0/dbee_1:N >> /etc/oratab'
+
+su -c "srvctl add db -d ${DB} -o $DB_HOME" - oracle
+
+srvctl add instance -d brk1mes -i brk1mes1 -n usmkelsorarac01
+srvctl add instance -d brk1mes -i brk1mes2 -n usmkelsorarac02
+
+srvctl config db -d brk1mes -v
+
+create diag and adump directories.
+
+prepare pfile for nomount
+
+set cluster_database=FALSE in the pfile.
+
+startup nomount pfile='<path_to_pfile>'
+
+create spfile='+<DG_NAME>' from pfile;
+
+shut immediate
+
+startup nomount
+
+show parameter spfile  --> it should show the value as spfile in the ASM DG.
+
+

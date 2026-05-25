@@ -1,0 +1,365 @@
+unzip the patch binaries in one location except Opatch binary and HOME zips.
+create list of ocr disks in the file ocr_disk_list in location $BINARY_LOC.
+Make sure the Physical memory is at least 8 GB.
+Make sure the swap is atleaset 1 GB usable (preferably 16GB).
+Make sure /u01 is available.
+The OCR disk should not be present in blkid output. IF blkid shows the entry of OCR disks, the run command `wipefs -a <device_name>`.
+
+## This doc will be applicable for 18c and higher.
+
+#----------------PARAMETERS------------------------#
+BINARY_LOC=/dba/media
+CRS_HOME_ZIP=LINUX.X64_193000_grid_home.zip
+RU_PATCH=37641958
+JDK_PATCH=37542054
+OPATCH_ZIP=p6880880_190000_Linux-x86-64.zip
+OCR_DG=system_dg
+DG_DISCOVERY_STR=/dev
+ASM_PASSWORD=Ac9u1tt6d_T6am
+DBA_ADMIN_DIR=/u01/app/oracle/admin
+#-------------------------------------------------#
+#mkdir -p $BINARY_LOC
+
+#chmod 777 $BINARY_LOC
+
+OCR_DISK_LIST_PATH=${BINARY_LOC}/ocr_disk_list
+export CRS_HOME=/u01/app/19.3.0.0/grid
+export O_BASE=/u01/app/oracle
+ORA_INVENTORY=/u01/app/oraInventory
+GRID_USER=grid
+ORACLE_USER=oracle
+
+chmod 777 $BINARY_LOC/$CRS_HOME_ZIP
+#chmod 777 $BINARY_LOC/$DB_HOME_ZIP
+chmod 777 $BINARY_LOC/$OPATCH_ZIP
+chmod 777 -R $BINARY_LOC/$RU_PATCH
+chmod 777 -R $BINARY_LOC/$JDK_PATCH
+chmod a+r $OCR_DISK_LIST_PATH
+
+echo installing necessary os modules...
+sh -c "yum install -y bc
+yum install -y binutils
+yum install -y compat-libcap1
+yum install -y compat-libstdc++-33
+yum install -y dtrace-modules
+yum install -y dtrace-modules-headers
+yum install -y dtrace-modules-provider-headers
+yum install -y dtrace-utils
+yum install -y elfutils-libelf
+yum install -y elfutils-libelf-devel
+yum install -y fontconfig-devel
+yum install -y glibc
+yum install -y glibc-devel
+yum install -y ksh
+yum install -y libaio
+yum install -y libaio-devel
+yum install -y libdtrace-ctf-devel
+yum install -y libXrender
+yum install -y libXrender-devel
+yum install -y libX11
+yum install -y libXau
+yum install -y libXi
+yum install -y libXtst
+yum install -y libgcc
+yum install -y librdmacm-devel
+yum install -y libstdc++
+yum install -y libstdc++-devel
+yum install -y libxcb
+yum install -y make
+yum install -y net-tools
+yum install -y nfs-utils
+yum install -y python
+yum install -y python-configshell
+yum install -y python-rtslib
+yum install -y python-six
+yum install -y targetcli
+yum install -y smartmontools
+yum install -y sysstat
+yum install -y libnsl
+yum install -y libnsl.i686
+yum install -y libnsl2
+yum install -y libnsl2.i686
+yum install -y gcc-c++
+yum install -y unzip telnet 
+yum install -y gcc make perl
+yum install -y compat-openssl11
+yum install -y fontconfig
+yum install -y libasan
+yum install -y liblsan
+yum install -y libvirt-libs
+yum install -y librdmacm
+yum install -y libibverbs
+yum install -y policycoreutils
+yum install -y policycoreutils-python-utils
+yum install -y glibc-headers
+yum install -y ipmiutil
+yum install -y libnsl2
+yum install -y libnsl2-devel
+yum install -y net-tools
+yum install -y nfs-utils" >> $BINARY_LOC/yum_out.log 2>&1 &
+
+systemctl stop sssd
+
+if [[ `cat /etc/passwd | grep $GRID_USER:` == '' && `id $GRID_USER` == '' ]]; then
+echo "$GRID_USER user doesn't exist"
+echo "Creating user $GRID_USER..."
+echo "useradd $GRID_USER"
+useradd $GRID_USER
+grid_uid=`su -c "echo \\\$UID" - $GRID_USER`
+echo "User $GRID_USER created with UID $grid_uid."
+else
+echo $GRID_USER user already exists.
+fi
+
+if [[ `cat /etc/passwd | grep $ORACLE_USER:` == '' && `id $ORACLE_USER` == '' ]]; then
+echo "$ORACLE_USER user doesn't exist"
+echo "Creating user $ORACLE_USER..."
+echo "useradd $ORACLE_USER"
+useradd $ORACLE_USER
+ora_uid=`su -c "echo \\\$UID" - $ORACLE_USER`
+echo "User $ORACLE_USER created with UID $ora_uid."
+else
+echo $ORACLE_USER user already exists.
+fi
+
+systemctl start sssd
+
+echo Creating required groups...
+
+sh -c "groupadd -g 54321 oinstall
+groupadd -g 54322 dba
+groupadd -g 54323 oper
+groupadd -g 54324 backupdba
+groupadd -g 54325 dgdba
+groupadd -g 54326 kmdba
+groupadd -g 54327 asmdba
+groupadd -g 54328 asmoper
+groupadd -g 54329 asmadmin
+groupadd -g 54330 racdba"
+
+echo Group creation completed.
+
+echo assigning necessary groups to $GRID_USER user...
+usermod -g oinstall -G dba,asmdba,asmoper,asmadmin,racdba $GRID_USER
+
+echo assigning necessary groups to $ORACLE_USER user...
+usermod -g oinstall -G dba,oper,backupdba,dgdba,kmdba,asmdba,asmoper,asmadmin,racdba $ORACLE_USER
+
+
+## -- For Linux 8 -- ##
+curl -o $BINARY_LOC/oracle-database-preinstall-19c-1.0-2.el8.x86_64.rpm https://yum.oracle.com/repo/OracleLinux/OL8/appstream/x86_64/getPackage/oracle-database-preinstall-19c-1.0-1.el8.x86_64.rpm
+yum -y localinstall $BINARY_LOC/oracle-database-preinstall-19c-1.0-2.el8.x86_64.rpm
+dnf -y localinstall $BINARY_LOC/oracle-database-preinstall-19c-1.0-2.el8.x86_64.rpm
+
+
+## -- For Linux 9 -- ##
+curl -o $BINARY_LOC/oracle-database-preinstall-19c-1.0-1.el9.x86_64.rpm https://yum.oracle.com/repo/OracleLinux/OL9/appstream/x86_64/getPackage/oracle-database-preinstall-19c-1.0-1.el9.x86_64.rpm
+yum -y localinstall $BINARY_LOC/oracle-database-preinstall-19c-1.0-1.el9.x86_64.rpm
+dnf -y localinstall $BINARY_LOC/oracle-database-preinstall-19c-1.0-1.el9.x86_64.rpm
+
+cp -p /home/grid/.bash_profile /home/grid/.bash_profile_bak_`date +%d%b%H%M`
+
+cat > /home/grid/.bash_profile << !
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+
+# User specific environment and startup programs
+umask 22
+#export CV_ASSUME_DISTID=OEL8
+export TMP=/tmp
+export TMPDIR=\$TMP
+export ORACLE_BASE=$O_BASE
+export ORACLE_HOME=$CRS_HOME
+export PATH=\$ORACLE_HOME/bin:\$ORACLE_HOME:\$ORACLE_HOME/OPatch:\$PATH;
+export LD_LIBRARY_PATH=\$ORACLE_HOME/lib:/lib:/usr/lib
+export CLASSPATH=\$ORACLE_HOME/JRE:\$ORACLE_HOME/jlib:\$ORACLE_HOME/rdbms/jlib
+export ORA_INVENTORY=$ORA_INVENTORY
+!
+
+echo systemctl stop avahi-daemon
+systemctl stop avahi-daemon
+echo systemctl disable avahi-daemon
+systemctl disable avahi-daemon
+echo systemctl stop firewalld
+systemctl stop firewalld
+echo systemctl disable firewalld
+systemctl disable firewalld
+
+# Not required if oracle-database-preinstall-19c rpm installed
+#echo Updating \"NOZEROCONF=yes\"...
+#cp -p /etc/sysconfig/network /etc/sysconfig/network_bak_`date +%d%b%H%M`
+#sed -i 's/NOZEROCONF=/#NOZEROCONF=/g' /etc/sysconfig/network
+#echo NOZEROCONF=yes | cat >> /etc/sysconfig/network 
+
+echo Updating Selinux...
+cp -p /etc/selinux/config /etc/selinux/config_bak_`date +%d%b%H%M`
+sed -i 's/SELINUX=/#SELINUX=/g' /etc/selinux/config
+echo SELINUX=permissive | cat >> /etc/selinux/config
+
+#cat /etc/selinux/config
+
+setenforce Permissive
+
+#getenforce --> should give output as "Permissive"
+
+cp -p /etc/security/limits.conf /etc/security/limits.conf_bak_`date +%d%b%H%M`
+
+cat >> /etc/security/limits.conf << EOF
+$GRID_USER   soft   stack    10240
+$GRID_USER   hard   stack    32768
+$GRID_USER   soft   memlock  unlimited
+$GRID_USER   hard   memlock  unlimited
+EOF
+
+#----------------------------------------------------------------------------------------------
+
+sh -c "mkdir -p $O_BASE
+mkdir -p $DBA_ADMIN_DIR
+#mkdir -p /u01/app/oracle/admin
+chown oracle:oinstall $O_BASE
+#chown oracle:oinstall /u01/app/oracle
+chmod 775 $O_BASE
+#chmod 775 /u01/app/oracle
+chown oracle:oinstall $DBA_ADMIN_DIR
+#chown oracle:oinstall /u01/app/oracle/admin
+chmod 775 $DBA_ADMIN_DIR
+#chmod 775 /u01/app/oracle/admin
+chown oracle:oinstall /u01
+chmod 775 /u01
+chown oracle:oinstall /u01/app
+chmod 775 /u01/app"
+
+su -c "mkdir -p $CRS_HOME" - $GRID_USER # --- only on node-1
+
+#mkdir -p /u01/media; chmod -R 777 /u01/media
+
+echo "su -c \"unzip -d $CRS_HOME $BINARY_LOC/$CRS_HOME_ZIP\" - $GRID_USER"
+
+su -c "unzip -d $CRS_HOME $BINARY_LOC/$CRS_HOME_ZIP" - $GRID_USER
+
+su -c "mv $CRS_HOME/OPatch $CRS_HOME/OPatch_old" - $GRID_USER
+
+su -c "unzip -d $CRS_HOME $BINARY_LOC/$OPATCH_ZIP" - $GRID_USER
+
+rpm -ivh $CRS_HOME/cv/rpm/cvuqdisk-1.0.10-1.rpm
+
+su -c "$CRS_HOME/runcluvfy.sh stage -pre hacfg -fixup -verbose" - $GRID_USER
+
+su -c "$CRS_HOME/gridSetup.sh -silent -applyRU $BINARY_LOC/$RU_PATCH -applyOneOffs $BINARY_LOC/$JDK_PATCH INVENTORY_LOCATION=$ORA_INVENTORY \
+oracle.install.option=CRS_SWONLY \
+ORACLE_BASE=$O_BASE \
+oracle.install.asm.OSDBA=asmdba \
+oracle.install.asm.OSOPER=asmoper \
+oracle.install.asm.OSASM=asmadmin \
+oracle.install.config.managementOption=NONE \
+oracle.install.crs.rootconfig.executeRootScript=false" - $GRID_USER >> $BINARY_LOC/${GRID_USER}_crs_so.out 2>&1 &
+
+$ORA_INVENTORY/orainstRoot.sh
+
+$CRS_HOME/root.sh
+
+#-------------------------------------------------------------------------------------------
+
+OCR_DISK_LIST=''
+
+#Labelling the OCR disks...
+
+#Check if AFD is installed or not...
+
+export ORACLE_BASE=/tmp
+if [[ -z `nohup $CRS_HOME/bin/asmcmd afd_state | grep -i ASMCMD-9526` && `nohup $CRS_HOME/bin/asmcmd afd_state | grep -i 'ASMCMD-9530' | awk -F ':' '{print $1}'` == 'ASMCMD-9530' ]]
+then
+AFD_STATE=0
+elif [[ `nohup $CRS_HOME/bin/asmcmd afd_state | awk -F ':' '{print $1}'` ==  'ASMCMD-9526' ]]
+then
+AFD_STATE=1
+fi
+unset ORACLE_BASE
+
+# check - echo $AFD_STATE
+#	0
+	
+#Label Disks ....
+
+for disk in `cat $OCR_DISK_LIST_PATH`;
+do
+MPATH_NAME=`echo ${disk} | awk -F '/' '{print $NF}'`
+AFD_LABEL=${OCR_DG}_${MPATH_NAME}
+#echo "$AFD_LABEL"
+if [[ `blkid | grep TYPE="oracleasm" | grep $disk` == '' && `blkid | grep $disk` == '' ]]
+then
+echo Disk $disk not being used by ASM.
+echo "Labelling ocr disk $disk now..."
+export ORACLE_BASE=/tmp
+if [[ $AFD_STATE == 0 ]]
+then
+echo "$CRS_HOME/bin/asmcmd afd_label $AFD_LABEL $disk --init"
+$CRS_HOME/bin/asmcmd afd_label ${AFD_LABEL} ${disk} --init
+else
+echo "$CRS_HOME/bin/asmcmd afd_label $AFD_LABEL $disk"
+$CRS_HOME/bin/asmcmd afd_label ${AFD_LABEL} ${disk}
+fi
+echo "OCR Disk $disk labelled as --> $AFD_LABEL"
+chown grid:asmadmin $disk
+if [[ $OCR_DISK_LIST == '' ]]; then
+OCR_DISK_LIST=$disk
+else
+OCR_DISK_LIST=$OCR_DISK_LIST,${disk}
+fi
+unset ORACLE_BASE
+else
+echo Disk $disk is being used by ASM already.
+echo skipping disk $disk..
+fi
+done;
+
+export ORACLE_BASE=/tmp
+$CRS_HOME/bin/asmcmd afd_lsdsk
+unset ORACLE_BASE
+#-------------------------------------------------------------------------------------------
+
+HA_CFG_RSP=$BINARY_LOC/${GRID_USER}_HA_CONFIG_19c.rsp
+
+cat > $HA_CFG_RSP << !
+
+oracle.install.responseFileVersion=/oracle/install/rspfmt_crsinstall_response_schema_v19.0.0
+INVENTORY_LOCATION=$ORA_INVENTORY
+oracle.install.option=HA_CONFIG
+ORACLE_BASE=$O_BASE
+oracle.install.asm.OSDBA=asmdba
+oracle.install.asm.OSOPER=asmoper
+oracle.install.asm.OSASM=asmadmin
+oracle.install.crs.config.scanType=LOCAL_SCAN
+oracle.install.crs.config.ClusterConfiguration=STANDALONE
+oracle.install.crs.configureGIMR=false
+oracle.install.asm.SYSASMPassword=$ASM_PASSWORD
+oracle.install.asm.diskGroup.name=${OCR_DG}
+oracle.install.asm.diskGroup.redundancy=EXTERNAL
+oracle.install.asm.diskGroup.AUSize=4
+oracle.install.asm.diskGroup.disks=$OCR_DISK_LIST
+oracle.install.asm.diskGroup.diskDiscoveryString=$DG_DISCOVERY_STR/*
+oracle.install.asm.monitorPassword=$ASM_PASSWORD
+oracle.install.asm.configureAFD=true
+oracle.install.crs.rootconfig.executeRootScript=false
+!
+
+chmod 777 $HA_CFG_RSP
+#-----------------------------------------------------------------------------------------------
+
+## Verify that the hostname is correctly configured. (hostnamectl set-hostname <hostname>)
+
+su -c "$CRS_HOME/gridSetup.sh -silent -responseFile $HA_CFG_RSP" - $GRID_USER >> $BINARY_LOC/${GRID_USER}_hacfg.out 2>&1 &
+
+$CRS_HOME/root.sh >> $BINARY_LOC/rootsh_hacfg.out 2>&1 &
+
+#tail -f /var/log/messages
+
+#$CRS_HOME/bin/crsctl stat res -t -init
+
+su -c "$CRS_HOME/gridSetup.sh -silent -responseFile $HA_CFG_RSP -executeConfigTools" - $GRID_USER >> $BINARY_LOC/${GRID_USER}_ha_cfg_tools.out 2>&1 &
+
+su -c "$CRS_HOME/runcluvfy.sh stage -post hacfg -verbose" - $GRID_USER

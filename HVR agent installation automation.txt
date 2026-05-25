@@ -1,0 +1,114 @@
+## ----------- PARAMETERS -----------##
+
+HVR_USR_NAME=NP700000676
+O_HOME=/u01/app/oracle/product/19.3.0.0/dbee_1
+CRS_HOME=/u01/app/19.3.0.0/grid
+ASM_SID=+ASM
+HVR_BIN_LOC=/backup/fivetran-6.1.0_73-hub_and_agent-linux_glibc2.12-x64-64bit_ga_patch.tar.gz     # give the absolute location.
+HVR_PORT=4344
+
+## --------------------------------- ##
+
+DB_HOST_NAME=`hostname | awk -F "." '{print $1}'`
+
+yum install tar -y
+
+systemctl stop sssd
+
+useradd $HVR_USR_NAME
+
+systemctl start sssd
+
+=============================
+
+#usermod -a -g oinstall -G asmadmin $HVR_USR_NAME
+usermod -a -G asmadmin,oinstall $HVR_USR_NAME
+
+
+---OR----
+
+usermod -a -G users,dba $HVR_USR_NAME
+
+===============================
+
+chmod 777 $HVR_BIN_LOC
+chown $HVR_USR_NAME:oinstall $HVR_BIN_LOC 
+
+#su -c "mkdir -p /u01/app/oracle/admin/$HVR_USR_NAME/hvr_home" - $HVR_USR_NAME
+
+#su -c "mkdir -p /u01/app/oracle/admin/$HVR_USR_NAME/hvr_config" - $HVR_USR_NAME
+
+#su -c "mkdir -p /u01/app/oracle/admin/$HVR_USR_NAME/hvr_tmp" - $HVR_USR_NAME
+
+su -c "mkdir -p /u01/app/oracle/admin/gehc_hvr6/hvr_home" - $HVR_USR_NAME
+
+su -c "mkdir -p /u01/app/oracle/admin/gehc_hvr6/hvr_config" - $HVR_USR_NAME
+
+su -c "mkdir -p /u01/app/oracle/admin/gehc_hvr6/hvr_tmp" - $HVR_USR_NAME
+
+chown $HVR_USR_NAME:oinstall /u01/app/oracle/admin/gehc_hvr6
+
+
+
+==============================================
+
+##cat << EOF >> /tmp/samplr
+#Hello
+#Hello
+#EOF
+
+su -c "cp ~/.bash_profile ~/.bash_profile_`date +%d%m%Y%H%M%S`" - $HVR_USR_NAME
+su -c "cat << EOF > ~/.bash_profile
+# .bashrc 
+
+# Source global definitions 
+if [ -f /etc/bashrc ]; then 
+        . /etc/bashrc 
+fi
+# Uncomment the following line if you don't like systemctl's auto-paging feature: 
+# export SYSTEMD_PAGER= 
+
+# User specific aliases and functions 
+export HVR_HOME=/u01/app/oracle/admin/gehc_hvr6/hvr_home 
+export HVR_CONFIG=/u01/app/oracle/admin/gehc_hvr6/hvr_config 
+export HVR_TMP=/u01/app/oracle/admin/gehc_hvr6/hvr_tmp 
+export ORACLE_HOME=$O_HOME
+export PATH=\\\$PATH:\\\$HVR_HOME/bin:\\\$ORACLE_HOME/bin
+export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:\\\$HVR_HOME/lib:/usr/lib64:\\\$ORACLE_HOME/lib
+TNS_ADMIN=\\\$HVR_HOME;export TNS_ADMIN 
+PATH=\\\$HVR_HOME/bin:\\\$PATH 
+export PATH 
+HVR_ASM_HOME=$CRS_HOME
+export HVR_ASM_HOME 
+HVR_ASM_CONNECT="hvr_asm/hvr_asm@$ASM_SID" 
+export HVR_ASM_CONNECT
+EOF" - $HVR_USR_NAME
+
+
+-------------------------------------------------------------------------------------
+
+# Make sure the requires TNS entries are added in the tnsnames.ora file such as +ASM or db tns.
+
+su -c "tar -xvpf $HVR_BIN_LOC -C /u01/app/oracle/admin/gehc_hvr6/hvr_home" - $HVR_USR_NAME
+
+su -c "cp /u01/app/oracle/admin/gehc_hvr6/hvr_home/tnsnames.ora /u01/app/oracle/admin/gehc_hvr6/hvr_home/tnsnames.ora_`date +%d%m%Y%H%M%S`" - $HVR_USR_NAME
+
+su -c "cat << EOF > /u01/app/oracle/admin/gehc_hvr6/hvr_home/tnsnames.ora
++ASM=(DESCRIPTION=(ADDRESS=(PROTOCOL=IPC)(KEY=LISTENER))(CONNECT_DATA=(SID=+ASM)))
+
+devmwsr6 = (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = mws-ora01-dev.dmzad.ds.ge-healthcare.net)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME
+ = devmwsr6)))
+EOF" - $HVR_USR_NAME
+
+#export HVR_TMP=/u01/app/oracle/admin/NP700000676/hvr_tmp
+#export HVR_HOME=/u01/app/oracle/admin/NP700000676/hvr_home
+#export HVR_CONFIG=/u01/app/oracle/admin/NP700000676/hvr_config
+#export TNS_ADMIN=/u01/app/oracle/admin/NP700000676/hvr_home
+
+#su -c "/u01/app/oracle/admin/NP700000676/hvr_home/bin/hvrremotelistener -d -N -EHVR_ASM_CONNECT=hvr_asm/hvr_asm@+ASM1 $HVR_PORT" - $HVR_USR_NAME
+
+su -c "/u01/app/oracle/admin/gehc_hvr6/hvr_home/bin/hvragentlistener -d $HVR_PORT" - $HVR_USR_NAME
+
+su -c "/u01/app/oracle/admin/gehc_hvr6/hvr_home/bin/hvragentconfig Setup_Mode_Timed_Until=now+8760" - $HVR_USR_NAME
+
+su -c "/u01/app/oracle/admin/gehc_hvr6/hvr_home/bin/hvragenttest $DB_HOST_NAME $HVR_PORT" - $HVR_USR_NAME
