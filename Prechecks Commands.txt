@@ -1,0 +1,45 @@
+hostname -f
+uptime
+date
+last reboot|head -5
+
+crsctl stat res -t ( using root user, Set the env to asm. Use the command for asm based servers)
+
+srvctl status asm (using grid user, set the env to asm and run the command for asm based servers)
+
+srvctl config asm (using grid user, set the env to asm and run the command for asm based servers)
+
+asmcmd lsdg (using grid user, set the env to asm and run the command for asm based servers)
+ 
+uname -a
+uname -r
+df -h
+df -h|wc -l
+lvs -o +devices
+cat /etc/fstab
+cat /etc/oratab
+## crontab -l
+crontab -l ( for root, oracle, grid users / not for sso users)
+ps -ef|grep hvr
+
+
+ps -ef|grep agent
+ps -ef|grep pmon
+ps -ef |grep pmon|wc -l
+ps -ef|grep tns
+	 
+ps -ef|grep d.bin
+lsblk
+lsblk|wc -l
+lsblk -o NAME,FSTYPE,UUID,LABEL
+ 
+ifconfig -a
+ls -la /dev/oracleasm/disks| awk '{print $10}'
+ls -la /dev/oracleasm/disks| awk '{print $10}'|wc -l
+
+ls -la /dev/oracleafd/disks | awk '{print $10}'
+ls -la /dev/oracleafd/disks| awk '{print $10}'|wc -l
+blkid
+free -m
+free -g
+

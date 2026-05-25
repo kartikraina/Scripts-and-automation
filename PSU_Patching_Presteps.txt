@@ -1,0 +1,244 @@
+ORA_INV=$(cat /etc/oraInst.loc | grep -e 'inventory_loc' | awk -F '=' '{print $2}')
+CRS_HOME=/u01/app/19.3.0.0/grid
+DB_HOME=/data/oracle/product/19.3.0/dbhome_1
+HOST_NAME=$(hostname | awk -F '.' '{print $1}')
+PATCH_DIRECTORY=/data/PSU_APR_26
+HOME_BACKUP_DIR=/data/PSU_APR_26
+
+echo ORA_INV = $ORA_INV
+
+echo HOST_NAME = $HOST_NAME
+
+PATCH_SOURCE_HOST=db-admin-server-1.cloud.ge-healthcare.net
+
+PATCH_SOURCE_LOC=/data/oracle/psu/OCT_PSU_2025
+
+OPATCH_ZIP=p6880880_190000_Linux-x86-64.zip
+
+
+https://packages.microsoft.com/config/rhel/8/packages-microsoft-prod.rpm
+
+==============================================
+step 1: create patch directory in target server
+==============================================
+
+#cd /u01
+mkdir -p $PATCH_DIRECTORY;
+cd $PATCH_DIRECTORY
+chmod 777 $PATCH_DIRECTORY;pwd
+
+hostname -f
+
+==============================================
+step 2: transfer patches to target server
+==============================================
+
+#scp -r 19c_* oracle@${PATCH_SOURCE_HOST}:/u01/PSU_April_25/		# source server
+#scp p6880880_190000_Linux-x86-64.zip oracle@<SERVER_FQDN_OR_IP>:/u01/PSU_April_25/   ## source server
+
+#chmod 777 /u01/PSU_April_25/p6880880_190000_Linux-x86-64.zip  ## in target server
+
+scp OPATCH/p6880880_190000_Linux-x86-64.zip
+
+scp 19c_JDK/p38586770_190000_Linux-x86-64.zip
+
+scp 19c_GI/p38629535_190000_Linux-x86-64.zip
+
+
+
+==============================================
+step 3: upgrade opatch in both homes
+==============================================
+
+touch $PATCH_DIRECTORY/unzip.log
+chmod a+rw $PATCH_DIRECTORY/unzip.log
+chmod a+r $PATCH_DIRECTORY/$OPATCH_ZIP
+
+chown grid $CRS_HOME 
+su -c "mv $CRS_HOME/OPatch $CRS_HOME/OPatch_12_49" - grid
+
+chown oracle $DB_HOME
+su -c "mv $DB_HOME/OPatch $DB_HOME/OPatch_12_49" - oracle
+
+su -c "unzip -o -d $CRS_HOME $PATCH_DIRECTORY/$OPATCH_ZIP &>> $PATCH_DIRECTORY/unzip_crs_opatch.log &" - grid
+
+su -c "unzip -o -d $DB_HOME $PATCH_DIRECTORY/$OPATCH_ZIP &>> $PATCH_DIRECTORY/unzip_db_opatch.log &" - oracle
+
+==============================================
+step 4: Verify opatch version after upgrade
+==============================================
+
+$CRS_HOME/OPatch/opatch version
+
+$DB_HOME/OPatch/opatch version
+
+==============================================
+step 5: Delete inactive patches in both homes
+==============================================
+
+su -c "$CRS_HOME/OPatch/opatch util deleteinactivepatches -silent &>> $PATCH_DIRECTORY/opatch_grid.out &" - grid
+
+## Do not run parallely as central inventory gets locked.
+
+su -c "$DB_HOME/OPatch/opatch util deleteinactivepatches -silent &>> $PATCH_DIRECTORY/opatch_oracle.out &" - oracle
+
+==============================================
+step 6: Backup the Oracle Home, Grid Home and Inventory
+==============================================
+
+tar -cvpf ${HOME_BACKUP_DIR}/Ora_Inventory_${HOST_NAME}.tar $ORA_INV &>> $PATCH_DIRECTORY/tar_ora_inv.out &
+
+tar -cvpf ${HOME_BACKUP_DIR}/19c_GI_${HOST_NAME}.tar $CRS_HOME &>> $PATCH_DIRECTORY/tar_gi.out &
+tar -cvpf ${HOME_BACKUP_DIR}/19c_OH_${HOST_NAME}.tar $DB_HOME &>> $PATCH_DIRECTORY/tar_oh.out &
+
+
+tar -cvpf ${HOME_BACKUP_DIR}/12c_GI_${HOST_NAME}.tar $CRS_HOME &>> $PATCH_DIRECTORY/tar_gi.out &
+tar -cvpf ${HOME_BACKUP_DIR}/12c_OH_${HOST_NAME}.tar $DB_HOME &>> $PATCH_DIRECTORY/tar_oh.out &
+
+==============================================
+step 7: unzip patches in patch directory
+==============================================
+
+unzip -o -d $PATCH_DIRECTORY $PATCH_DIRECTORY/19C_Grid/p*.zip &>> $PATCH_DIRECTORY/unzip.log &
+
+unzip -o -d $PATCH_DIRECTORY $PATCH_DIRECTORY/p38930593_190000_Linux-x86-64.zip &>> $PATCH_DIRECTORY/unzip_JDK.log & # JDK
+
+unzip -o -d $PATCH_DIRECTORY $PATCH_DIRECTORY/p39036936_190000_Linux-x86-64.zip &>> $PATCH_DIRECTORY/unzip_GI.log & # GI
+
+unzip -o -d $PATCH_DIRECTORY $PATCH_DIRECTORY/p39034528_190000_Linux-x86-64.zip &>> $PATCH_DIRECTORY/unzip_DB.log & # DB
+
+=============================================
+step 8: Change unzipped patches permission
+=============================================
+## change permissions for all unzipped patches to (-R 777)
+
+chmod 777 -R $PATCH_DIRECTORY/3*
+
+
+
+
+
+
+
+
+
+$ORACLE_HOME/OPatch/jre/bin/java -version
+$ORACLE_HOME/jdk/jre/bin/java -version
+$ORACLE_HOME/jdk/bin/java -version 
+$ORACLE_HOME/OPatch/opatch lspatches
+
+
+
+===================================================
+
+export ORACLE_SID=+ASM
+#export ORACLE_HOME=$CRS_HOME
+export ORAENV_ASK=NO
+. oraenv
+unset ORAENV_ASK
+
+$CRS_HOME/OPatch/opatchauto apply $PATCH_DIRECTORY/39036936 &>> $PATCH_DIRECTORY/opatchauto_GI.log &
+
+$CRS_HOME/OPatch/opatchauto apply $PATCH_DIRECTORY/38930593 &>> $PATCH_DIRECTORY/opatchauto_JDK.log &
+
+
+su -c "sh 'export ORACLE_SID=devmwsr5
+export ORACLE_HOME=$DB_HOME
+export ORAENV_ASK=NO
+. oraenv
+unset ORAENV_ASK'" - oracle
+
+cd $PATCH_DIRECTORY
+
+===================================================================================================================
+$ORACLE_HOME/crs/install/rootcrs.sh -prepatch >> prepatch.log 2>&1 &
+===================================================================================================================
+# DB
+
+$ORACLE_HOME/OPatch/opatch apply -oh $ORACLE_HOME 39034528 -silent &>> opatch_DB.log &
+
+# JDK
+
+$ORACLE_HOME/OPatch/opatch apply -oh $ORACLE_HOME 38930593 -silent &>> opatch_JDK.log &
+
+# GI
+
+$ORACLE_HOME/OPatch/opatch apply -oh $ORACLE_HOME 38629535 -silent &>> opatch_GI.log &
+
+===================================================================================================================
+
+$ORACLE_HOME/OPatch/opatch  apply -oh $ORACLE_HOME -local 37957391/37960098 -silent >> opatch_grid.log 2>&1 &
+$ORACLE_HOME/OPatch/opatch  apply -oh $ORACLE_HOME -local 37957391/37962946 -silent >> opatch_grid.log 2>&1 &
+$ORACLE_HOME/OPatch/opatch  apply -oh $ORACLE_HOME -local 37957391/37962938 -silent >> opatch_grid.log 2>&1 &
+$ORACLE_HOME/OPatch/opatch  apply -oh $ORACLE_HOME -local 37957391/38124772 -silent >> opatch_grid.log 2>&1 &
+
+$ORACLE_HOME/OPatch/opatch  apply -oh $ORACLE_HOME -local 37860476 -silent >> opatch_grid.log 2>&1 &
+
+===================================================================================================================
+
+$ORACLE_HOME/OPatch/opatch  apply -oh $ORACLE_HOME -local 37957391/37960098 -silent >> opatch_oracle.log 2>&1 &
+$ORACLE_HOME/OPatch/opatch  apply -oh $ORACLE_HOME -local 37957391/37962946 -silent >> opatch_oracle.log 2>&1 &
+
+$ORACLE_HOME/OPatch/opatch  apply -oh $ORACLE_HOME -local 37860476 -silent >> opatch_oracle.log 2>&1 &
+
+===================================================================================================================
+$ORACLE_HOME/crs/install/rootcrs.sh -postpatch >> postpatch.log 2>&1 &
+
+## GI
+
+cd $CRS_HOME/OPatch
+tar -zcvpf jre.tar.gz jre
+rm -rf jre
+chmod 777 jre.tar.gz
+
+## Remove old opatch in GI
+
+## DB
+
+cd $DB_HOME/OPatch
+tar -zcvpf jre.tar.gz jre
+rm -rf jre
+chmod 777 jre.tar.gz
+
+## Remove old opatch in DB
+
+## Cleanup
+
+df -h $PATCH_DIRECTORY
+rm -rf $PATCH_DIRECTORY/3* $PATCH_DIRECTORY/p*.zip
+df -h $PATCH_DIRECTORY
+
+dr1mes1
+dr2mes1
+drdatm1
+stg1mca1
+dr2irca1
+stgbii1
+dr3irca1
+stg21mes1
+stgdatm1
+stglwhi1
+stg3irca1
+dr11mes1
+stg2irca1
+drhcin1
+stg2mes1
+stg1mes1
+dr21mes1
+stg2pmv1
+stg11mes1
+stg4mes1
+stg31mes1
+stg41mes1
+stg3mes1
+
+z2BePag}3(hDSq
+
+$DB_HOME/OPatch/datapatch -verbose >> $PATCH_DIRECTORY/datapatch.log 2>&1 &
+
+alter database recover managed standby database disconnect;
+
+select CLIENT_PROCESS,INST_ID,PROCESS,CLIENT_PID,PID,STATUS,THREAD#,SEQUENCE# from gv$managed_standby;
+
+select SOURCE_DBID,INST_ID,SOURCE_DB_UNIQUE_NAME,NAME,VALUE,TIME_COMPUTED,DATUM_TIME from gv$dataguard_stats;
+

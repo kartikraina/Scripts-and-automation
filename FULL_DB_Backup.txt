@@ -1,0 +1,24 @@
+connect target /
+RUN
+{
+	allocate channel c1 type disk;
+	allocate channel c2 type disk;
+	allocate channel c3 type disk;
+	allocate channel c4 type disk;
+	
+    BACKUP AS COMPRESSED BACKUPSET
+        DATABASE
+        FORMAT '/u01/app/oracle/admin/RITM0563712_dlt_aftr_08Jun2026/full_%d_%T_%U.bkp'
+        TAG 'FULL_DB_BACKUP_RITM0563712';
+
+
+    BACKUP
+        CURRENT CONTROLFILE
+        FORMAT '/u01/app/oracle/admin/RITM0563712_dlt_aftr_08Jun2026/ctl_%d_%T_%U.bkp';
+
+    BACKUP
+        SPFILE
+        FORMAT '/u01/app/oracle/admin/RITM0563712_dlt_aftr_08Jun2026/spfile_%d_%T_%U.bkp';
+}
+
+$ORACLE_HOME/bin/rman cmdfile=/u01/app/oracle/admin/RITM0563712_dlt_aftr_08Jun2026/rman_backup_oemdhc.cmd log=/u01/app/oracle/admin/RITM0563712_dlt_aftr_08Jun2026/rman_backup_oemdhc.log &>> rman.log &

@@ -1,0 +1,56 @@
+hostname -f
+
+last reboot
+
+df -h
+
+df -h | wc -l
+
+lsblk -o NAME,MAJ:MIN,RM,SIZE,TYPE,MOUNTPOINT,LABEL
+
+cat /etc/fstab
+
+blkid
+
+free -h
+
+sysctl -a | grep kernel
+
+ifconfig -a
+
+cat /etc/oratab
+ 
+##---------------------##
+ORAENV_ASK=NO
+ORACLE_SID=+ASM
+. oraenv
+unset ORAENV_ASK
+##---------------------##
+
+crsctl stat res -t
+
+ps -ef | grep pmon
+
+ps -ef | grep hvr 
+
+ps -ef | grep d.bin
+
+ps -ef | grep oem
+
+ps -ef | grep agent
+
+ps -ef | grep tns
+
+ls -lrt /dev/oracleafd/disks
+
+crontab -l
+
+su - oracle -c "crontab -l"
+
+su - grid -c "crontab -l"
+
+crsctl check has
+
+su - oracle -c "lsnrctl status"
+ 
+

@@ -1,0 +1,51 @@
+SET ECHO OFF HEAD OFF FEED OFF
+SET LONG 1000000
+SET PAGESIZE 0
+SET LINESIZE 32767
+SET TRIMSPOOL ON
+
+SPOOL Test_data.html
+
+
+SELECT html_table FROM (
+SELECT
+'<table border="1" style="border-collapse:collapse;font-family:Arial;font-size:12px;">
+<tr><th>blocker_sid_serial#</th><th>blocker_app</th><th>blocker_sql</th><th>blocker_binds</th><th>waiter_sid_serial#</th><th>waiter_app</th><th>wait_time_mins</th></tr>' ||
+RTRIM(
+    XMLAGG(
+        XMLELEMENT(e,
+	'<tr><td>'||b.sid || ',' || b.serial# ||
+    '</td><td>'||'User: ' || b.username || ' | Mac: ' || b.machine ||
+    '</td><td>'||'SQL_ID: ' || NVL(b.sql_id, b.prev_sql_id) || '|' ||
+    (SELECT XMLAGG(XMLELEMENT(e,sql_text) ORDER BY piece).EXTRACT('//text()').GETCLOBVAL()
+     FROM (
+        SELECT sql_text, piece
+        FROM v$sqltext
+        WHERE sql_id = NVL(b.sql_id, b.prev_sql_id)
+        AND ROWNUM <= 20
+     )
+    ) ||
+    '</td><td>'||
+(SELECT XMLAGG(XMLELEMENT(e,bc.name || '=' || bc.value_string, '; ') ORDER BY bc.position).EXTRACT('//text()').GETCLOBVAL()
+     FROM (
+        SELECT name, value_string, position
+        FROM v$sql_bind_capture bc
+        WHERE bc.sql_id = NVL(b.sql_id, b.prev_sql_id)
+        AND ROWNUM <= 10
+     ) bc
+    ) ||
+    '</td><td>'||w.sid || ',' || w.serial# ||
+    '</td><td>'||w.machine ||
+    '</td><td>'||ROUND(w.seconds_in_wait / 60) ||
+    '</td></tr>',
+    ''
+) ORDER BY w.seconds_in_wait DESC).EXTRACT('//text()').GETCLOBVAL()
+)|| '</table>' AS html_table
+FROM v$session b
+JOIN v$session w 
+  ON b.sid = w.blocking_session
+WHERE w.blocking_session IS NOT NULL
+AND w.seconds_in_wait > 3600
+);
+SPOOL OFF
+EXIT

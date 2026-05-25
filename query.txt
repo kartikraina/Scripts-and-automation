@@ -1,0 +1,1718 @@
+select owner,sum(bytes/1024/1024/1024) "GB" from dba_segments where owner not in ('PUBLIC','SYSTEM','SYSAUX','SYS','OJVMSYS','LBACSYS','OUTLN','SYS$UMF','DBSNMP','Advertisements', 'REPORT THIS AD', 'APPQOSSYS', 'DBSFWUSER', 'GGSYS', 'DVSYS', 'DVF', 'GSMADMIN_INTERNAL', 'MDSYS', 'OLAPSYS', 'XDB', 'WMSYS', 'GSMCATUSER', 'MDDATA', 'SYSBACKUP', 'REMOTE_SCHEDULER_AGENT', 'GSMUSER', 'SYSRAC', 'GSMROOTUSER', 'SI_INFORMTN_SCHEMA', 'AUDSYS', 'DIP', 'ORDPLUGINS','CTXSYS','SYSKM', 'ORDDATA', 'ORACLE_OCM', 'SYSDG', 'ORDSYS', 'OJVMSYS','APEX_040200','SCOTT') group by owner order by 1;
+
+
+select owner,sum(bytes/1024/1024/1024) "GB",(sum(bytes/1024/1024/1024)/83.44)*100 "% Completed" from dba_segments join dba_users on (owner=username) and OWNER='IDEBRIEF' group by owner order by 2 desc;
+
+CRONACLE.SYS_C0039654
+CRONACLE.RWS_STA$_UK1
+
+select owner,sum(bytes/1024/1024/1024) "GB",(sum(bytes/1024/1024/1024)/149.1)*100 "% Completed" from dba_segments join dba_users on (owner=username) and OWNER='HCDNAINF104REPP' group by owner order by 2 desc;
+
+we!iDm1$tMLcRcJ4
+
+OWNER                            COUNT(1)
+------------------------------ ----------
+X3DCOMMENT                            235
+X3DDASHADMIN23X                       149
+X3DNOTIF                               68
+X3DPASSADMIN                          244
+X3DPASSTOKENS                          26
+X3DSWYM                               494
+X3DSWYM_MEDIA                         298
+X3DSWYM_WIDGET                        152
+
+OWNER                          OBJECT_TYPE               COUNT(1)
+------------------------------ ----------------------- ----------
+X3DCOMMENT                     INDEX                          155
+X3DCOMMENT                     LOB                             15
+X3DCOMMENT                     SEQUENCE                         6
+X3DCOMMENT                     TABLE                           59
+X3DDASHADMIN23X                INDEX                          101
+X3DDASHADMIN23X                LOB                             12
+X3DDASHADMIN23X                SEQUENCE                         1
+X3DDASHADMIN23X                TABLE                           35
+X3DNOTIF                       INDEX                           30
+X3DNOTIF                       LOB                              4
+X3DNOTIF                       PROCEDURE                        1
+X3DNOTIF                       SEQUENCE                         9
+X3DNOTIF                       TABLE                           17
+X3DNOTIF                       TRIGGER                          6
+X3DNOTIF                       VIEW                             1
+X3DPASSADMIN                   INDEX                          158
+X3DPASSADMIN                   LOB                             19
+X3DPASSADMIN                   SEQUENCE                         1
+X3DPASSADMIN                   TABLE                           66
+X3DPASSTOKENS                  INDEX                           13
+X3DPASSTOKENS                  LOB                              5
+X3DPASSTOKENS                  SEQUENCE                         1
+X3DPASSTOKENS                  TABLE                            7
+X3DSWYM                        INDEX                          314
+X3DSWYM                        LOB                             47
+X3DSWYM                        SEQUENCE                         6
+X3DSWYM                        TABLE                          127
+X3DSWYM_MEDIA                  FUNCTION                         1
+X3DSWYM_MEDIA                  INDEX                          133
+X3DSWYM_MEDIA                  LOB                             27
+X3DSWYM_MEDIA                  SEQUENCE                        39
+X3DSWYM_MEDIA                  TABLE                           59
+X3DSWYM_MEDIA                  TRIGGER                         39
+X3DSWYM_WIDGET                 INDEX                          103
+X3DSWYM_WIDGET                 LOB                             12
+X3DSWYM_WIDGET                 SEQUENCE                         1
+X3DSWYM_WIDGET                 TABLE                           36
+
+OWNER                            COUNT(1)
+------------------------------ ----------
+X3DCOMMENT                            235
+X3DDASHADMIN23X                       149
+X3DNOTIF                               68
+X3DPASSADMIN                          244
+X3DPASSTOKENS                          26
+X3DSWYM                               494
+X3DSWYM_MEDIA                         298
+X3DSWYM_WIDGET                        152
+
+=====================================================================================================================================
+
+select owner,object_type,count(1)
+from dba_objects
+where owner in (upper('x3dpassadmin23x'),upper('x3dpasstokens23x'),
+upper('x3dpassadmin23xsup'),upper('x3dpassadmin23xsup'),
+upper('x3ddashadmin23x'),upper('x3dswym'),
+upper('x3dswym_media'),upper('x3dswym_widget'),upper('x3dcomment'),upper('x3dnotif')) group by owner,object_type order by 1;
+
+select username,account_status from dba_users where username in (upper('x3dpassadmin23x'),upper('x3dpasstokens23x'),
+upper('x3dpassadmin23xsup'),upper('x3dpassadmin23xsup'),
+upper('x3ddashadmin23x'),upper('x3dswym'),
+upper('x3dswym_media'),upper('x3dswym_widget'),upper('x3dcomment'),upper('x3dnotif'));
+
+select 'drop '||object_type||' '||owner||'.'||'"'|| object_name ||'"'||' cascade constraints '|| ';' from dba_objects where object_type='TABLE'
+and owner in (upper('x3dpassadmin23x'),upper('x3dpasstokens23x'),
+upper('x3dpassadmin23xsup'),upper('x3dpassadmin23xsup'),
+upper('x3ddashadmin23x'),upper('x3dswym'),
+upper('x3dswym_media'),upper('x3dswym_widget'),upper('x3dcomment'),upper('x3dnotif'));
+
+select 'drop '||object_type||' '||owner||'.'||'"'|| object_name ||'"'||' cascade constraints '|| ';' from dba_objects where object_type='TABLE'
+and owner in ('SYNAM') and object_name not in ('ATI_COMMUNICATION','ATI_TASK_SCHEDULER','ATI_TENANT_SECURITY_DETAIL','ATI_TENANT_SECURITY_IPADDRESS','ATI_TENANT','ATI_TASK_DETAIL','ATI_FILE_SESSION','PROCESS_MGMT','SEC_USERS','SEC_USERS_DEFAULT');
+
+select 'drop '||object_type||' '||owner||'.'||'"'|| object_name ||'"'|| ';' from dba_objects where object_type in ('VIEW','PACKAGE','SEQUENCE','PROCEDURE', 'FUNCTION','TRIGGER','SYNONYM','DATABASE LINK','TYPE')
+and owner in (upper('x3dpassadmin23x'),upper('x3dpasstokens23x'),
+upper('x3dpassadmin23xsup'),upper('x3dpassadmin23xsup'),
+upper('x3ddashadmin23x'),upper('x3dswym'),
+upper('x3dswym_media'),upper('x3dswym_widget'),upper('x3dcomment'),upper('x3dnotif'));
+
+
+select 'purge '||type||' '||owner||'.'||'"'|| ORIGINAL_NAME ||'"'|| ';' from dba_recyclebin where type='TABLE'
+and owner in (upper('x3dpassadmin23x'),upper('x3dpasstokens23x'),
+upper('x3dpassadmin23xsup'),upper('x3dpassadmin23xsup'),
+upper('x3ddashadmin23x'),upper('x3dswym'),
+upper('x3dswym_media'),upper('x3dswym_widget'),upper('x3dcomment'),upper('x3dnotif'));
+
+
+select 'drop '||object_type||' '||owner||'.'||'"'||object_name||'"'||decode(object_type,'TABLE',' cascade constraints')||';' from dba_objects where owner in ('DEVSALEP_DATA') and object_type not in ('INDEX','LOB');
+
+
+=================================================================================================================================================
+
+'3ETyFapL8WvmAU2Q'
+col owner for a25
+compute sum of "GB" on report
+break on report
+select owner,sum(bytes/1024/1024/1024) "GB" from dba_segments join dba_users on (owner=username) and ORACLE_MAINTAINED='N' and owner<>'SCOTT' group by owner order by 1;
+
+select 'alter table '||OWNER||'.'||table_name|| ' disable constraint '|| CONSTRAINT_NAME || ';' from dba_constraints where CONSTRAINT_TYPE='R' and owner in
+(
+select username from dba_users where oracle_maintained='N' and username<>'SCOTT'
+)
+order by 1;
+
+select 'alter table '||OWNER||'.'||table_name|| ' disable constraint '|| CONSTRAINT_NAME || ';' from dba_constraints where CONSTRAINT_TYPE='R' and owner in
+(select username from dba_users where oracle_maintained='N');
+
+select 'alter table '||OWNER||'.'||table_name|| ' enable novalidate constraint '|| CONSTRAINT_NAME || ';' from dba_constraints where CONSTRAINT_TYPE='R' and owner in
+(select username from dba_users where oracle_maintained='N');
+
+nohup impdp \"/ as sysdba\" directory=EXP_DIR dumpfile=expdb_stg4cds_full_%U.dmp logfile=impdp_stg4cds_22Jan_disable_const.log parallel=5 content=DATA_ONLY table_exists_action=truncate &
+
+select ts#,file#,dbarfil,dbablk,class,state,mode_held,obj from x$bh where obj='1336266';
+
+select segment_name,bytes/1024/1024 "MB" from dba_segments where owner='EC2' and segment_type='TABLE' order by 2;
+
+select instance_name,host_name from v$instance;
+select owner,object_type,count(o.object_name) "Object Count" from dba_objects o join dba_users u on (owner=username)
+and o.oracle_maintained='N'
+and u.oracle_maintained='N'
+and owner<>'SCOTT'
+group by owner,object_type order by 1,2,3;
+
+select 'drop user '||username||' cascade;' from dba_users where oracle_maintained='N' and username <> 'HVRREPO' and default_tablespace not in ('SYSTEM','SYSAUX','USERS','HVRREPO');
+
+HOST=stg1inte.cjieruz7xqjt.us-east-1.rds.amazonaws.com
+PORT=1521
+SERVICE_NAME=stg1inte
+
+stg1lhi.cjieruz7xqjt.us-east-1.rds.amazonaws.com
+
+
+
+
+  CREATE OR REPLACE EDITIONABLE FUNCTION "DBAHC"."GE_PASSWORD_VERIFY_FUNCTION" 
+(username varchar2, password varchar2, old_password varchar2)
+RETURN boolean IS
+-- --------------------------------------------------------------------
+-- Tony Clark
+-- April 2013
+--
+-- Must be a minimum of 8 characters in length
+-- Must be a maximum of 30 characters long.
+-- Must contain a minimum of 2 embedded numbers.
+-- Must begin and end with an alphabet character.
+-- Shall not be the same as the User ID
+-- Shall not be a known word, only few simple words are checked.
+-- Special characters are allowed, but not required ( # _ $ ).
+-- In 11g and above, shall contain at least to one uppercase and one lowercase letter.
+-- Password cannot be reused
+-- --------------------------------------------------------------
+n boolean;
+m integer;
+p integer;
+digitcount number;
+ischar  boolean;
+isspec boolean;
+digitarray varchar2(250);
+chararray varchar2(250);
+upperarray varchar2(250);
+specarray varchar2(25);
+username_lower varchar2(250);
+password_lower varchar2(250);
+pwd varchar2(250);
+BEGIN
+digitarray:= '0123456789';
+chararray:= 'abcdefghijklmnopqrstuvwxyz';
+upperarray:= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+specarray:= '#_$';
+
+-- Check if the password is same or includes the username
+
+IF NLS_LOWER(password) = NLS_LOWER(username) THEN
+  raise_application_error(-20001, 'Password same as or similar to username');
+END IF;
+pwd:=password;
+username_lower := NLS_LOWER(username);
+password_lower := NLS_LOWER(password);
+m := length(password);
+p := length(username);
+FOR i in 1..m loop
+  if substr(password_lower,i,1) = substr(username_lower,1,1) then
+    if substr(password_lower,i,p) = substr(username_lower,1,p) then
+     --dbms_output.put_line('a');
+     raise_application_error(-20001, 'Username is contained in the password');
+    end if;
+  end if;
+end loop;
+
+-- Check for the minimum length of the password
+IF length(password) < 8 THEN
+   raise_application_error(-20002, 'Password length less than 8');
+END IF;
+
+-- Check for the maximum length of the password
+IF length(password) > 30 THEN
+   raise_application_error(-20002, 'Password length more than 30');
+END IF;
+
+-- Check if the password is too simple. A dictionary of words may be
+-- maintained and a check may be made so as not to allow the words
+-- that are too simple for the password.
+IF NLS_LOWER(password) IN ('welcome', 'database', 'account', 'user', 'password', 'oracle', 'computer', 'abcd') THEN
+   raise_application_error(-20002, 'Password too simple');
+END IF;
+
+--Check for the lowercase character
+ischar:=FALSE;
+FOR i IN 1..length(chararray) LOOP
+   FOR j IN 1..m LOOP
+      IF substr(password,j,1) = substr(chararray,i,1) THEN
+         ischar:=TRUE;
+          GOTO findupperchar;
+      END IF;
+   END LOOP;
+END LOOP;
+IF ischar = FALSE THEN
+   raise_application_error(-20003, 'Password should contain at least one lowercase letter');
+END IF;
+
+<<findupperchar>>
+--Check for the uppercase character
+ischar:=FALSE;
+FOR i IN 1..length(upperarray) LOOP
+   FOR j IN 1..m LOOP
+      IF substr(password,j,1) = substr(upperarray,i,1) THEN
+         ischar:=TRUE;
+          GOTO findembednum;
+      END IF;
+   END LOOP;
+END LOOP;
+IF ischar = FALSE THEN
+   raise_application_error(-20004, 'Password should contain at least one uppercase letter');
+END IF;
+
+<<findembednum>>
+--Check for the embedded numbers
+
+FOR i in 1..10 loop
+IF SUBSTR(password,1,1) = SUBSTR(digitarray,i,1) OR substr(password,m,1) = substr(digitarray,i,1) then
+raise_application_error(-20004, 'Password cannot start or end with number');
+end if;
+end loop;
+
+digitcount := 0;
+FOR i in 1..10 loop
+ FOR j in 2..m-1 loop
+ IF substr(password,j,1) = substr(digitarray,i,1) then
+  digitcount := digitcount+1;
+ end if;
+ end loop;
+end loop;
+IF digitcount < 2 then
+raise_application_error(-20005, 'Password should contain minimum two embedded numbers');
+end if;
+
+ -- Everything is fine; return TRUE ;
+RETURN(TRUE);
+END;
+
+
+
+
+
+
+
+
+
+
+ICCSIDQCM
+ICCSDMAIN
+ICCSIDQMDR
+ICCSTGREP
+
+
+ICCPRDREP_DATA
+ICCPDMAIN_DATA
+ICCPIDQMDR_DATA
+ICCPIDQCM_DATA
+
+TO_CHAR(DBMS_METADATA.GET_DDL('TABLESPACE','ICCPRDREP_DATA'))
+-------------------------------------------------------------
+
+  CREATE TABLESPACE "ICCPRDREP_DATA" DATAFILE
+  SIZE 8589934592
+  AUTOEXTEND ON NEXT 1073741824 MAXSIZE 31744M
+  LOGGING ONLINE PERMANENT BLOCKSIZE 8192
+  EXTENT MANAGEMENT LOCAL AUTOALLOCATE DEFAULT
+ NOCOMPRESS  SEGMENT SPACE MANAGEMENT AUTO
+
+
+TO_CHAR(DBMS_METADATA.GET_DDL('TABLESPACE','ICCPDMAIN_DATA'))
+--------------------------------------------------------------------------------
+
+  CREATE TABLESPACE "ICCPDMAIN_DATA" DATAFILE
+  SIZE 8589934592
+  AUTOEXTEND ON NEXT 1073741824 MAXSIZE 31744M
+  LOGGING ONLINE PERMANENT BLOCKSIZE 8192
+  EXTENT MANAGEMENT LOCAL AUTOALLOCATE DEFAULT
+ NOCOMPRESS  SEGMENT SPACE MANAGEMENT AUTO
+
+
+TO_CHAR(DBMS_METADATA.GET_DDL('TABLESPACE','ICCPIDQMDR_DATA'))
+--------------------------------------------------------------
+
+  CREATE TABLESPACE "ICCPIDQMDR_DATA" DATAFILE
+  SIZE 8589934592
+  AUTOEXTEND ON NEXT 1073741824 MAXSIZE 31744M
+  LOGGING ONLINE PERMANENT BLOCKSIZE 8192
+  EXTENT MANAGEMENT LOCAL AUTOALLOCATE DEFAULT
+ NOCOMPRESS  SEGMENT SPACE MANAGEMENT AUTO
+
+
+TO_CHAR(DBMS_METADATA.GET_DDL('TABLESPACE','ICCPIDQCM_DATA'))
+---------------------------------------------------------------
+
+  CREATE TABLESPACE "ICCPIDQCM_DATA" DATAFILE
+  SIZE 8589934592
+  AUTOEXTEND ON NEXT 1073741824 MAXSIZE 31744M
+  LOGGING ONLINE PERMANENT BLOCKSIZE 8192
+  EXTENT MANAGEMENT LOCAL AUTOALLOCATE DEFAULT
+ NOCOMPRESS  SEGMENT SPACE MANAGEMENT AUTO
+
+=====================================================
+
+set line 200 pages 200
+col CLIENT_INFO format a40
+col "% Complete" format 999.99
+compute sum of totalwork_GB on report
+compute sum of sofar_GB on report
+break on report
+select s.inst_id, o.sid, CLIENT_INFO, context, (sofar*8)/1024/1024 sofar_GB, (totalwork*8)/1024/1024 totalwork_GB,
+                    round(sofar/totalwork*100,2) "% Complete",units
+     FROM gv$session_longops o, gv$session s
+     WHERE opname LIKE 'RMAN%'
+     AND opname NOT LIKE '%aggregate%'
+     AND o.sid=s.sid
+     AND totalwork != 0
+     AND sofar <> totalwork
+	 AND CLIENT_INFO <> ' '
+order by "% Complete";
+
+====================================================
+
+set line 200 pages 200
+col CLIENT_INFO format a20
+col event format a40
+col seconds format 999999.99
+select inst_id, sid, CLIENT_INFO, seq#, event, state, wait_time_micro/1000000 seconds
+from gv$session where program like '%rman%' and
+wait_time = 0 and
+action is not null
+and EVENT like '%remote db file read%'
+order by 2;
+
+===================================================================================
+set lines 999 pages 50;
+col opname for a35;
+select SID,SERIAL#,opname,SOFAR,TOTALWORK,ROUND(SOFAR/TOTALWORK*100,2) COMPLETE FROM V$SESSION_LONGOPS WHERE TOTALWORK!=0 AND SOFAR!=TOTALWORK order by 6;
+===================================================================================
+compute sum of "S GB" on report
+compute sum of "T GB" on report
+compute avg of "% Complete" on report
+break on report
+SET PAGES 400 line 300
+col % Complete for a5
+col ch for a20
+col filename for a70
+col "OPEN TIME" for a20
+col "CLOSE TIME" for a20
+--col "S GB" for a5
+--col "T GB" for a5
+select CLIENT_INFO Ch, 
+--a.STATUS,
+to_char(open_time,'DD/MM HH24:MI:SSSSS') "OPEN TIME", to_char(close_time,'DD/MM HH24:MI:SSSSS') "CLOSE TIME",round(BYTES/1024/1024/1024,3) "S GB" , round(total_bytes/1024/1024/1024,3)
+"T GB", 
+--io_count,
+round(BYTES/TOTAL_BYTES*100,2) "% Complete" , filename
+from gv$backup_async_io a,  gv$session s
+where 
+a.STATUS in (upper('in progress'),upper('finished'))
+--a.STATUS in upper('in progress')
+--and filename like '%/ARCHIVELOG/%'
+and filename not like '%/backup/%'
+and upper(filename) not like '%CONTROLFILE%'
+and a.sid=s.sid and open_time > sysdate - 1
+and CLIENT_INFO is not null
+order by "% Complete","CLOSE TIME";
+
+================================================
+
+compute sum of "S GB" on ch
+compute sum of "T GB" on ch
+compute avg of "% Complete" on ch
+break on ch
+SET PAGES 4000 line 300
+--col "% Complete" for a5
+col ch for a25
+col filename for a80
+col "OPEN TIME" for a15
+col "CLOSE TIME" for a15
+--col "S GB" for a5
+--col "T GB" for a5
+select CLIENT_INFO Ch, to_char(open_time,'DD/MM HH24:MI') "OPEN TIME", to_char(close_time,'DD/MM HH24:MI') "CLOSE TIME",round(BYTES/1024/1024/1024,3) "S GB" , round(total_bytes/1024/1024/1024,3) "T GB",round(BYTES/TOTAL_BYTES*100,2) "% Complete" , filename from gv$backup_async_io a,  gv$session s
+where a.STATUS in (upper('in progress'),upper('finished')) and upper(filename) not like '%CONTROLFILE%'
+and a.sid=s.sid and open_time > sysdate - 1
+and CLIENT_INFO is not null
+order by 1,3,6;
+
+=====================================================
+
+------------------------------------------------
+
+compute sum of "SOFAR GB" on report
+compute sum of "TOTGB" on report
+compute avg of "% Complete" on report
+break on report
+SET PAGES 400 line 300
+col ch for a20
+col filename for a60
+select a.sid, CLIENT_INFO Ch, a.STATUS,
+open_time, round(BYTES/1024/1024/1024,2) "SOFAR GB" , round(total_bytes/1024/1024/1024,2)
+TotGB, io_count,
+round(BYTES/TOTAL_BYTES*100,2) "% Complete" , filename
+from gv$backup_async_io a,  gv$session s
+where a.STATUS in upper('in progress')
+and filename not like '%/backup%'
+and a.sid=s.sid and open_time > sysdate - 1
+order by status;
+
+
+==================================================================================
+
+select owner,segment_name,sum(bytes/1024/1024/1024) from dba_segments where owner in
+(
+'GE_OTM_DJANGO_APP',
+'GPRS_TNT_API',
+'GE_NEWRELIC
+GE_MONITORING
+GE_OTM_RO
+GE_TABLEAU
+GE_POD
+GE_MOBILEGUI
+TEMP_CLOUD
+GE_OTM
+GE_MYORDERS
+GEHC_BAUX
+GE_BI_EXTRACTS
+)
+
+==================================================================================
+
+select to_char(dbms_metadata.get_ddl('USER','&name')) from dual;
+
+
+CREATE USER "ODP_HVR_PRD" IDENTIFIED BY VALUES 'S:D193B9E6FB248FCF131D2465BBAB7E2C9273962B90EC5DAB3F67583B71C8;T:4039E730D155E3C68909CA43F365B36754823DE537E5D9CF297E9523EB889CF268D74F495EAB343D5B540576CE373F02B294664C2083CA68236B3C457BCE32F1DD47FA77BF5D71CD4DF7EA992E3AE29C;1E2EE10CA87394FC' DEFAULT TABLESPACE "HVR_DATA" TEMPORARY TABLESPACE "TEMP"
+
+CREATE USER "GEHC_PACKMAN_MW" IDENTIFIED BY VALUES 'S:E59C5113285F778EC7FFF1EA8907A3BF3E98D23C687DC5019BDC7DF8B51C;T:7C11321DF4C4134CE6DFEEC8A896F52AF265899F6614A56682A18D28C7E859E33A4A730CF9DAD1526767834C474E7F3187912CF95BA8140749743B424408E362FD3DAC292B1C9C10F31588E3B4AB4733;23A14DA5635E01AE' DEFAULT TABLESPACE "USERS" TEMPORARY TABLESPACE "TEMP"
+
+
+=================================================================================
+
+set line 200
+col USERNAME for a30
+col machine for a50
+col service_name for a30
+select username,machine,status,service_name,to_char(logon_time,'DD-MM-YY HH24:MI:SS') login_time,count(1) total_session from v$session where service_name not like '%SYS%' group by username,machine,status,service_name,to_char(logon_time,'DD-MM-YY HH24:MI:SS');
+
+set line 200
+col USERNAME for a30
+col machine for a50
+col service_name for a30
+select inst_id,username,machine,status,service_name,SQL_ID,count(1) total_session from gv$session where service_name not like '%SYS%' group by inst_id,username,machine,status,service_name,SQL_ID;
+
+
+select sum(bytes/1024/1024/1024) from dba_segments where TABLESPACE_NAME=upper('&tbs_name');
+
+select to_char(dbms_metadata.get_ddl('&obj','&name')) from dual;
+
+CREATE USER "PMV_HVR" IDENTIFIED BY VALUES 'S:60AE28500DFA94E2F62F225AA75DBF713C013FC419769BA30CF21EC04276;T:2CB250D49E0ED3E83DE3D37B5A988F557ED1A05A009E396C6946524F9E742B1B4526CA4F6DD7BE5149FA70125B48B1F9CBFFBE3114AB3AD0BEEA410779E59B1A9FCBCCD899B570F44D486F6712BBAADB;FB0F98DABD4355B1'
+      DEFAULT TABLESPACE "PMV_HVR_DATA"
+      TEMPORARY TABLESPACE "TEMP"
+
+ALTER USER "PMLTUSER" IDENTIFIED BY VALUES 'S:BD5A5E377FCBA1EE17FE2032BB094983E280B162BCE98B7B3E4D696C7C18;T:9D767640B7CF5D7810CF1296CD3FD1353FA2DEC505CC33F3BC55A94C4806407F98C7157AD96DA0481E6E13E6E9C4A9DC865116F82EFEB3ACE6B8D605206C4F201F9052BD1278A90DB74A24AB8B980EC6'
+
+ALTER USER "PM_ETL" IDENTIFIED BY VALUES 'S:35A0A759E8BD92F97489B38B5F446F8A7EC440882AF08E819A53CF92AD7D;T:12B06C22883566E6BD01BAA21ADD498B1EE47C1156D24399F4B29C01FA4F6274458095D99BC64AFF59E968F80CDFB297B994F41F128BAFAEC9C6F6762D591BCEFB724C5EF62872733BD73184618D14C4;E2EBBB83D2C29868'
+
+ALTER USER "PMV_READ" IDENTIFIED BY VALUES 'S:A9AD7C8197244B39FFD896DD4A57FD9C834964F78B6356604EC52AAEA6B6;T:CA5DEF7A7DD6CD6F5BB93626BFCBC93A634CF0BB9045AC9E27B6F13E2430305E85CBC405613E90C3789A6267F9C8B086A25886B1F9D684F3D0D869D8E5A4DF5A893F7331358061695E6F551069301BC7;DD8ECAAB4DB6D497'
+
+ALTER USER "PMV_HVR" IDENTIFIED BY VALUES 'S:60AE28500DFA94E2F62F225AA75DBF713C013FC419769BA30CF21EC04276;T:2CB250D49E0ED3E83DE3D37B5A988F557ED1A05A009E396C6946524F9E742B1B4526CA4F6DD7BE5149FA70125B48B1F9CBFFBE3114AB3AD0BEEA410779E59B1A9FCBCCD899B570F44D486F6712BBAADB;FB0F98DABD4355B1'
+
+
+===================================================================================================================================
+select distinct owner from dba_tab_privs where grantee='&name';
+
+
+select grantee,privilege from dba_sys_privs where grantee='&name';
+
+select grantee,granted_role from dba_role_privs where grantee='&name';
+
+
+select 'grant '||privilege||' to '||grantee||';' from dba_sys_privs where grantee='&name';
+
+select 'grant '||privilege||' to '||grantee||';' from dba_sys_privs where grantee in (
+'GEMS_PLANTUSER'
+);
+
+select 'grant '||privilege||' on '||'"'||owner||'"'||'.'||'"'||table_name||'"'||' to '||grantee||';' from dba_tab_privs where grantee='&name';
+
+select 'grant '||privilege||' on '||'"'||owner||'"'||'.'||'"'||table_name||'"'||' to '||grantee||';' from dba_tab_privs where grantee in (
+'GEMS_PLANTUSER'
+);
+
+select 'grant '||granted_role||' to '||grantee||';' from dba_role_privs where grantee='&name';
+
+select 'grant '||granted_role||' to '||grantee||';' from dba_role_privs where grantee in (
+'GEMS_PLANTUSER'
+);
+
+
+select 'grant '||privilege||' to '||role||';' from role_sys_privs where role='&name';
+
+select 'grant '||privilege||' on '||'"'||owner||'"'||'.'||'"'||table_name||'"'||' to '||role||';' from role_tab_privs where role='&name';
+
+select 'grant '||granted_role||' to '||role||';' from role_role_privs where role='&name';
+
+===================================================================================================================================
+
+select profile,resource_name,limit from dba_users join dba_profiles using (profile) where username=upper('&user_name') and resource_name='PASSWORD_VERIFY_FUNCTION';
+
+select 'alter profile '||profile||' limit '||RESOURCE_NAME||' null;' from dba_users join dba_profiles using (profile)
+where username=upper('&user_name') and resource_name='PASSWORD_VERIFY_FUNCTION';
+
+alter profile DEFAULT limit PASSWORD_VERIFY_FUNCTION GE_PASSWORD_VERIFY_FUNCTION;
+
+select * from dba_tablespace_usage_metrics;
+
+select file_name, bytes/1024/1024/1024 "GB", maxbytes/1024/1024/1024 "MAX_GB",USER_BYTES/1024/1024/1024 "USER_GB",
+ increment_by*(bytes/blocks) "INCREMENT",
+ maxbytes-bytes remaining,
+ (maxbytes-bytes)/(increment_by*(bytes/blocks)) EXTENSIONS
+ from dba_data_files
+ where autoextensible = 'YES' and tablespace_name='PDMLINK123DATA';
+
+
+
+CREATE USER tisoware IDENTIFIED BY t1s0w4r3#61518
+      DEFAULT TABLESPACE "TKP_DATA"
+      TEMPORARY TABLESPACE "TEMP"
+      PROFILE "DEFAULT_NONEXPIRE"
+
+printf %.3f\\n "$((1000000000 * 1779204/1858107))e-9"
+
+alter database add logfile thread 2 GROUP 4 ('+DEV2MCA_DG', '+ORAATL1D_ARCH_DG') SIZE 600M REUSE;
+alter database add logfile thread 2 GROUP 5 ('+DEV2MCA_DG', '+ORAATL1D_ARCH_DG') SIZE 600M REUSE;
+alter database add logfile thread 2 GROUP 6 ('+DEV2MCA_DG', '+ORAATL1D_ARCH_DG') SIZE 600M REUSE;
+
+pwcreate --dbuniquename 'dev2mca' +DEV2MCA_DG -f
+
+select property_name,property_value from database_properties where property_name like '%CHAR%';
+
+set line 200
+col value for a80
+select * from v$diag_info;
+
+-------------------------------------------------------------------------------------
+alter system set diagnostic_dest='/u01/app/oracle/admin/crp1mes' scope=spfile sid='*';
+
+1825335
+32772
+
+1858107
+
+
+SET LINESIZE 2000
+SELECT event AS "Event|Name",
+       round(time_waited / 100, 0) "Seconds|Waiting"
+FROM v$system_event e
+WHERE event='SQL*Net message from client';
+
+---------------------------------------------------------------------------------------
+set line 200
+col profile for a30
+col limit for a30
+select profile,resource_name,resource_type,limit from dba_users join dba_profiles using (profile) where resource_name like '%PASSWORD%' and username=upper('&name');
+---------------------------------------------------------------------------------------
+
+select name,open_mode,controlfile_type,database_role from v$database;
+
+select * from dba_log_groups order by log_group_type, owner, table_name;
+---------------------------------------------------------------------------------------
+alter database recover managed standby database disconnect;
+
+alter database recover managed standby database cancel;
+
+select sid, serial#, sql_id, program , status,module, action, username, client_info,client_identifier,event from gv$session
+------------------------------
+set line 200
+col VALUE for a30
+col SOURCE_DB_UNIQUE_NAME for a13
+select SOURCE_DBID,INST_ID,SOURCE_DB_UNIQUE_NAME,NAME,VALUE,TIME_COMPUTED,DATUM_TIME from gv$dataguard_stats;
+
+col CLIENT_PID for a30
+set line 200
+select CLIENT_PROCESS,INST_ID,PROCESS,CLIENT_PID,PID,STATUS,THREAD#,SEQUENCE# from gv$managed_standby;
+
+set pages 500 line 200
+col name for a100
+select name,thread#,SEQUENCE#,ARCHIVED,APPLIED,DELETED,STATUS from v$archived_log where name is not null and APPLIED='NO' order by 2,3 ;
+
+select name,thread#,SEQUENCE#,round((BLOCKS*BLOCK_SIZE)/1024/1024,2) size_mb,ARCHIVED,APPLIED,DELETED,STATUS from v$archived_log where name is not null and APPLIED='NO' and DELETED='NO' order by 2,3 ;
+
+-------------------------------
+sho parameter db_cache_size
+
+-----------------------------------------------------------
+
+ALTER DATABASE ACTIVATE PHYSICAL STANDBY DATABASE;
+
+------------------------------
+
+select 'alter user '||username||' profile '||profile||';' from dba_users where username in
+(
+'ICCSTGREP',
+'ICCSDMAIN',
+'ICCSIDQMDR',
+'ICCSIDQCM'
+);
+
+
+alter user ICCSIDQMDR profile GE_NONPERSONAL;
+alter user ICCSDMAIN profile GE_NONPERSONAL;
+alter user ICCSIDQCM profile GE_NONPERSONAL;
+alter user ICCSTGREP profile GE_NONPERSONAL;
+
+
+---------------------------------------------------------------
+
+select 'alter profile '||profile||' limit PASSWORD_VERIFY_FUNCTION '||LIMIT||';'
+from dba_users join dba_profiles using (profile) where username=upper('&username') and resource_name='PASSWORD_VERIFY_FUNCTION';
+
+PASSWORD_REUSE_TIME              365
+PASSWORD_REUSE_MAX               10
+
+---------------------------------------------------------------
+
+select 'grant select on '||'"'||owner||'"'||'.'||'"'||table_name||'"'||' to PMV_READ;' from dba_tables where owner='PMLTUSER';
+
+
+
+CREATE TABLESPACE "IDEBRIEFDAT01" DATAFILE SIZE 12884901888
+  LOGGING ONLINE PERMANENT BLOCKSIZE 8192
+  EXTENT MANAGEMENT LOCAL AUTOALLOCATE DEFAULT
+ NOCOMPRESS  SEGMENT SPACE MANAGEMENT AUTO
+
+
+
+CREATE DATABASE LINK gehc_prd1ideb
+CONNECT TO dbahc IDENTIFIED BY Axc45b17lLX4bcN0
+USING
+'(DESCRIPTION=
+(ADDRESS=
+(PROTOCOL=TCP)
+(HOST= prd1ideb.c7mzd0bwbhck.us-east-1.rds.amazonaws.com )
+(PORT=1521))
+(CONNECT_DATA=
+(SERVICE_NAME=prd1ideb)))';
+
+
+alter database add standby logfile thread 2 group 10 ('+DREC2_DG','+ORAATL1D_ARCH_DG') size 1073741824;
+alter database add standby logfile thread 2 group 11 ('+DREC2_DG','+ORAATL1D_ARCH_DG') size 1073741824;
+alter database add standby logfile thread 2 group 12 ('+DREC2_DG','+ORAATL1D_ARCH_DG') size 1073741824;
+alter database add standby logfile thread 2 group 13 ('+DREC2_DG','+ORAATL1D_ARCH_DG') size 1073741824;
+alter database add standby logfile thread 2 group 14 ('+DREC2_DG','+ORAATL1D_ARCH_DG') size 1073741824;
+alter database add standby logfile thread 2 group 15 ('+DREC2_DG','+ORAATL1D_ARCH_DG') size 1073741824;
+alter database add standby logfile thread 2 group 16 ('+DREC2_DG','+ORAATL1D_ARCH_DG') size 1073741824;
+alter database add standby logfile thread 2 group 17 ('+DREC2_DG','+ORAATL1D_ARCH_DG') size 1073741824;
+alter database add standby logfile thread 2 group 18 ('+DREC2_DG','+ORAATL1D_ARCH_DG') size 1073741824;
+
+alter database drop logfile group 10;
+
+===========================================================================
+
+set pages 500
+col host for a80
+col DB_LINK for a20
+set line 200
+col owner for a20
+col username for a20
+
+select owner,db_link,username,host from dba_db_links;
+
+create database link &db_link_owner||'.'||"&db_link_name" connect to "&username" identified by &password using '&connect_identifier';
+
+=============================================================================
+
+create or replace procedure SVCOPS_EMEA.drop_db_link(
+	p_db_link_name IN VARCHAR2)
+    is
+    BEGIN
+		execute immediate 'drop database link ' || p_db_link_name ; 
+		DBMS_OUTPUT.PUT_LINE('DB Link : ' || p_db_link_name || ' dropped successfully.');
+	EXCEPTION
+		WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error dropping database link: ' || SQLERRM);
+	END;
+/
+	
+    begin
+      SVCOPS_EMEA.drop_db_link('UDI_AWS');
+    end;
+    /
+    drop procedure SVCOPS_EMEA."drop_db_link"
+    /
+
+=====================================================================
+
+create procedure TC_0002."create_db_link"
+    is
+    begin
+      execute immediate '
+        create database link ORPROD01_DB
+        connect to GEHCAPPSRO
+        identified by HCAPPSRO
+        using ''gehcexa01np.cloud.ge-healthcare.net:1521/ebs_GRCQA1'' ';
+    end;
+    /
+    begin
+      TC_0002."create_db_link";
+    end;
+    /
+    drop procedure TC_0002."create_db_link"
+    /
+
+================================================================
+select OWNER,SYNONYM_NAME,TABLE_OWNER,TABLE_NAME from dba_synonyms where SYNONYM_NAME='APEX_INSTANCE_ADMIN';
+
+CREATE OR REPLACE NONEDITIONABLE PUBLIC SYNONYM "APEX_INSTANCE_ADMIN" FOR "APEX_220200"."WWV_FLOW_INSTANCE_ADMIN"
+
+==========================================================================
+
+prd2sims - w2gulqxtgA7Nw0GW
+ 
+stg2sims - Hgdd4t5cYqSfzVkL
+
+select * from table(RDSADMIN.RDS_FILE_UTIL.LISTDIR('DATA_PUMP_DIR')) order by mtime;
+
+EXEC UTL_FILE.FREMOVE('DATA_PUMP_DIR','expdp_prd2sims_CHG0060388_01.dmp');
+
+/rdsdbdata/datapump/expdp_prd2sims_CHG0060388_01.dmp
+/rdsdbdata/datapump/expdp_prd2sims_CHG0060388_02.dmp
+/rdsdbdata/datapump/expdp_prd2sims_CHG0060388_03.dmp
+/rdsdbdata/datapump/expdp_prd2sims_CHG0060388_04.dmp
+/rdsdbdata/datapump/expdp_prd2sims_CHG0060388_05.dmp
+/rdsdbdata/datapump/expdp_prd2sims_CHG0060388_06.dmp
+/rdsdbdata/datapump/expdp_prd2sims_CHG0060388_07.dmp
+/rdsdbdata/datapump/expdp_prd2sims_CHG0060388_08.dmp
+/rdsdbdata/datapump/expdp_prd2sims_CHG0060388_09.dmp
+/rdsdbdata/datapump/expdp_prd2sims_CHG0060388_10.dmp
+/rdsdbdata/datapump/expdp_prd2sims_CHG0060388_11.dmp
+/rdsdbdata/datapump/expdp_prd2sims_CHG0060388_12.dmp
+/rdsdbdata/datapump/expdp_prd2sims_CHG0060388_13.dmp
+/rdsdbdata/datapump/expdp_prd2sims_CHG0060388_14.dmp
+
+echo set serveroutput on >> dbms_file_transfer.sql
+echo set timing on >> dbms_file_transfer.sql
+for i in `cat dbms_file_transfer.lst`;
+do
+cat << EOF >> dbms_file_transfer.sql
+begin
+DBMS_OUTPUT.PUT_LINE('Transferring file '||'$i');
+DBMS_FILE_TRANSFER.PUT_FILE('DATA_PUMP_DIR','$i','DATA_PUMP_DIR','$i','TO_STG2SIMS_OCTOBER');
+end;
+/
+EOF
+done;
+
+sqlplus dbahc/"w2gulqxtgA7Nw0GW"@prd2sims << EOF >> sqlplus.log 2>&1 &
+@dbms_file_transfer.sql
+EOF
+
+
+begin
+DBMS_FILE_TRANSFER.PUT_FILE('DATA_PUMP_DIR','expdp_prd2sims_CHG0060388_08.dmp','DATA_PUMP_DIR','expdp_prd2sims_CHG0060388_08.dmp','TO_STG2SIMS_OCTOBER');
+end;
+/
+
+
+
+select username,profile,limit from DBA_USERS join DBA_PROFILES using (profile) where RESOURCE_NAME='PASSWORD_ROLLOVER_TIME' and username in (
+'ARCS_DRM_STG',
+'ARCS_HC_RPT',
+'ARCS_HC_SRC_STG',
+'CALCMGR',
+'CCL_TRIGGER_WFP',
+'DODECA_BKP',
+'EAS',
+'EPM_INFRA_READ',
+'EPMSEC_CLIENT',
+'EPMSYS',
+'GOWFP_HR3_BKP',
+'HC_ARCS_STG',
+'HC_ARCS_STG_RO',
+'HC_FCCSTM_PRD',
+'HCPARCS_READ',
+'HCPES_DATAMART',
+'HCPES_READ',
+'HCPES_TRANSFORMER',
+'HCPES_VIEW',
+'HCPES_WRITE',
+'HCPESS_DATAMART',
+'HCPWFP',
+'HSS',
+'LS_HYP_STAGING',
+'ODI_M',
+'ODI_W1',
+'ODIAC_E',
+'ODIAC_M',
+'ODIAC_W1',
+'PLANSYS',
+'RPTNG'
+);
+
+
+select username,profile,resource_name,limit from DBA_USERS join DBA_PROFILES using (profile) where RESOURCE_NAME in ('PASSWORD_ROLLOVER_TIME','PASSWORD_GRACE_TIME') and username in (
+'EPM_INFRA_READ',
+'FDMEE',
+'FDMEE_RO'
+);
+
+
+-----------------------------------------------------------------------------------------
+
+Hourly archive generation
+
+
+
+set pages 1000
+alter session set nls_date_format = 'DD-MON-YYYY HH24:MI:SS';
+
+select trunc(COMPLETION_TIME,'HH') Hour,thread# , 
+round(sum(BLOCKS*BLOCK_SIZE)/1024/1024/1024) GB,
+count(*) Archives from v$archived_log 
+group by trunc(COMPLETION_TIME,'HH'),thread#  order by 1 ;
+
+select trunc(COMPLETION_TIME,'DD')Hour,thread# ,
+round(sum(BLOCKS*BLOCK_SIZE)/1024/1024/1024) GB,
+count(*) Archives from v$archived_log,dual
+where completion_time < sysdate-12/24 and name is not null
+group by rollup(trunc(COMPLETION_TIME,'DD'),thread#)  order by 1 ;
+
+
+alter session set nls_date_format = 'DD-MON-YYYY HH24:MI:SS';
+
+select trunc(COMPLETION_TIME,'DD') Day,thread# , 
+round(sum(BLOCKS*BLOCK_SIZE)/1024/1024/1024) GB,
+count(*) Archives from v$archived_log 
+group by trunc(COMPLETION_TIME,'DD'),thread# having trunc(COMPLETION_TIME,'DD')>'31-DEC-2024'  order by 1 ;
+
+
+for i in {1..100}; do echo ===========Iteration $i ==========; du -shBm *.dmp; sleep 2; done;
+
+
+
+i=1
+i=1; while [ i>0 ]; do echo ===========Iteration $i ==========; du -sh *.dmp; sleep 2; ((i=i+1)); done;
+
+
+==================================================
+
+Data Pump query longops
+
+set line 200
+col username for a20
+col OPNAME for a30
+col TARGET_DESC for a20
+col units for a10
+col MESSAGE for a60
+col "% Completed" for a40
+select name,USERNAME,OPNAME,TARGET_DESC,SOFAR,TOTALWORK,UNITS,round(sofar/TOTALWORK*100,2)||'% completed' "% Completed" from v$SESSION_LONGOPS,v$database where TARGET_DESC in ('IMPORT','EXPORT');
+
+
+===============================================
+
+set line 200
+SET LINES 32000
+SET  ECHO OFF FEED OFF HEAD OFF NEWP 0 SPA 0 PAGES 0 FEED OFF TRIMS ON TAB OFF
+SET SERVEROUTPUT ON
+col username for a20
+col OPNAME for a30
+col TARGET_DESC for a20
+col units for a10
+col MESSAGE for a60
+col "% Completed" for a40
+--select message from v$SESSION_LONGOPS,v$database where TARGET_DESC in ('IMPORT','EXPORT') and OPNAME='SYS_IMPORT_SCHEMA_01';
+--select round(sofar/TOTALWORK*100,2)||'% completed' "% Completed" from v$SESSION_LONGOPS,v$database where TARGET_DESC in ('IMPORT','EXPORT') and OPNAME='SYS_IMPORT_SCHEMA_01';
+
+spool &1
+
+select message from v$SESSION_LONGOPS,v$database where TARGET_DESC in ('IMPORT','EXPORT') and OPNAME='SYS_IMPORT_SCHEMA_01';
+select 'Import '||round(sofar/TOTALWORK*100,2)||'% completed' "% Completed" from v$SESSION_LONGOPS,v$database where TARGET_DESC in ('IMPORT','EXPORT') and OPNAME='SYS_IMPORT_SCHEMA_01';
+
+
+DECLARE
+   h1 NUMBER;
+   BEGIN
+      h1:=DBMS_DATAPUMP.ATTACH('SYS_IMPORT_SCHEMA_01','SYS');
+      DBMS_DATAPUMP.STOP_JOB (h1, 1, 0);
+   END;
+/
+spool off
+
+sh ec2_refresh_status.sh /backup/output.txt
+
+========================================================
+
+select SNAP_ID,SQL_ID,ACTION,BEGIN_INTERVAL_TIME,END_INTERVAL_TIME,round (ELAPSED_TIME_TOTAL/1000000/60,2) elapsed_minutes from dba_hist_sqlstat join dba_hist_snapshot using (snap_id) where sql_id='4n30qjj0a1ypq' order by BEGIN_INTERVAL_TIME,END_INTERVAL_TIME;
+
+==============================================================
+
+
+select distinct username,t.privilege||' on schema '||t.owner "TAB_PRIVS" from dba_users u join dba_tab_privs t on (u.username=t.grantee) where username not like '%SSO%' order by 1;
+union
+select distinct username,s.privilege "SYS_PRIVS" from dba_users u join dba_sys_privs s on (u.username=s.grantee) where username not like '%SSO%' order by 1;
+
+
+=============================================================
+
+select sid,serial#,sql_id,count(holding_session) cnt,status from dba_blockers join v$session on (holding_session=sid) group by sid,serial#,sql_id,status;
+
+=============================================================
+
+set line 200
+set pages 500
+col username for a20
+col expiry_date for a15
+col profile for a30
+col resource_type for a20
+col RESOURCE_NAME for a30
+col limit for a30
+--compute count of profile on username;
+break on username
+
+ 
+select name db_name,username,EXPIRY_DATE,profile,resource_name,limit from v$database,(select username,EXPIRY_DATE,profile,resource_name,limit from dba_users join dba_profiles using (profile) where oracle_maintained='N' and resource_type='PASSWORD' and RESOURCE_NAME='PASSWORD_LIFE_TIME' order by 1,4,5);
+=============================================================
+
+
+-- Datafile resize 
+
+set linesize 1000 pagesize 0 feedback off trimspool on
+with
+hwm as (
+  -- get highest block id from each datafiles ( from x$ktfbue as we don't need all joins from dba_extents )
+  select /*+ materialize */ ktfbuesegtsn ts#,ktfbuefno relative_fno,max(ktfbuebno+ktfbueblks-1) hwm_blocks
+  from sys.x$ktfbue group by ktfbuefno,ktfbuesegtsn
+),
+hwmts as (
+  -- join ts# with tablespace_name
+  select name tablespace_name,relative_fno,hwm_blocks
+  from hwm join v$tablespace using(ts#)
+),
+hwmdf as (
+  -- join with datafiles, put 5M minimum for datafiles with no extents
+  select file_name,nvl(hwm_blocks*(bytes/blocks),5*1024*1024) hwm_bytes,bytes,autoextensible,maxbytes
+  from hwmts right join dba_data_files using(tablespace_name,relative_fno)
+)
+select
+case when autoextensible='YES' and maxbytes>=bytes
+then -- we generate resize statements only if autoextensible can grow back to current size
+  '/* reclaim '||to_char(ceil((bytes-hwm_bytes)/1024/1024),999999)
+   ||'M from '||to_char(ceil(bytes/1024/1024),999999)||'M */ '
+   ||'alter database datafile '''||file_name||''' resize '||ceil(hwm_bytes/1024/1024)||'M;'
+else -- generate only a comment when autoextensible is off
+  '/* reclaim '||to_char(ceil((bytes-hwm_bytes)/1024/1024),999999)
+   ||'M from '||to_char(ceil(bytes/1024/1024),999999)
+   ||'M after setting autoextensible maxsize higher than current size for file '
+   || file_name||' */'
+end SQL
+from hwmdf
+where
+bytes-hwm_bytes>1024*1024*1024 -- resize only if at least 1MB can be reclaimed
+order by bytes-hwm_bytes desc;
+
+--------------------------------------------------------------------------------------------------------
+
+spool pre_refresh_user.sql
+
+select 'create user '||username||'  identified by values '''||SPARE4 || ';'||b.password||'''  default tablespace  '||default_tablespace||'  temporary tablespace '||temporary_tablespace||'  profile '||profile||' ; ' from dba_users a, user$ b where a.username=b.name and a.username in ( select username from dba_users where username like  '%%' ) ;
+
+spool off
+
+----------------------------------------
+
+spool grants_backup_before_refresh.sql
+
+select 'grant '||privilege||' on '||owner||'.'||table_name||' to '||grantee||' ; ' from dba_tab_privs where grantee in (select username from dba_users where username like '%%' );
+
+spool off
+
+----------------------------------------
+
+spool alter_username_passwords.sql
+
+select 'alter user '||NAME||' identified by values '''||SPARE4 || ';'||password||''';' from sys.USER$;
+
+select 'create user '||username||'  identified by values '''||SPARE4 || ';'||b.password||'''  default tablespace  '||default_tablespace||'  temporary tablespace '||temporary_tablespace||'  profile default ; ' from dba_users a, user$ b where a.username=b.name and a.username in ( select username from dba_users where username like  '%%' )  ;
+
+select 'grant '||granted_role||' to '||grantee||' ; '  from dba_role_privs where grantee like '%%';
+
+select 'grant '||privilege||' on "'||owner||'"."'||table_name||'" to  '||grantee||' ; ' from dba_tab_privs;
+
+spool off
+
+
+alter user X3DCOMMENT identified by values 'S:732B9D21940A1CD5796CBE920973E0DC5C5F0571F6D23CC1B06E267585D5;T:309158D6182BBE568B2CED1746B9F792A36B3BDBFF231D24B9D1F5172471FDA9D042A043C4F3F521FB5A490A156327A6CD540A7AC736869F423689AE5440BBA5167EE09B57DD8591F9D31F9B19F50C29;65449833085962FF';
+alter user X3DDASHADMIN23X identified by values ';BB8A1996B3B3D510';                                                                                                    
+alter user X3DNOTIF identified by values 'S:A6A236245B8C2E9303106081C65FE57665D539A5033786EB6DC090AFFB64;T:A6D43C858FD5FF7BA827BE5C4106C8EE241F3A2D075DA6BCB049B6899A96F9F34F460892C41078318A2B259144E99E30FE03C057DAA09726918356082C175FFCBC27EDA152868AF90A5F73ABBBACE27B;9A97EAB7DD9F6DAD';
+alter user X3DPASSADMIN identified by values 'S:98037E9DFC5C6F77E40041522E80A327839E04E9A8696744DB3F9757EDE6;T:F54DCE0C3A7F832124D0AE85FF0FF7AFB037F57DB41E784C6F222B2CA6523A80E02EF4B82CAA08BC45AC9DE446A187FE58D27C07846330694A565BAB84D5F26780FC6B65D1A053D45624FBB05A22BE41;3AEF82305924B29A';
+alter user X3DPASSTOKENS identified by values 'S:52BF8BEBD71350F845944DAB227D50C79C57C14C62C8B18A83FC9208CDD0;T:591DABE78AE762AB7C8FECD460FDAF8010004DCB6ACFEBA6DDC8A7A3F03154FA1CE619390D65EBB42118F302A5CCBEA01AD8EE38D363E58D4DAC2D25C331FDA11D9BA2BDEBAC593915D2FF85C120C556;850BA5B930254658';
+alter user X3DSPACE identified by values 'S:1C8DA146D29DF7DE0595FDBE4493A3A04EE728B7A56FD05015C191DBB7E1;T:F8BFC16F685FB2E44C1AC835CBC84BF5C4E0691527B60D9C6507197528B3BD3DB4EE5D1955C08ED1EB18903A9D203651ED09199446CB2558230C29130681C38E56F2376E3969D4AF7E54FF07BD1731C4;2FF263D05F9AFA55';
+alter user X3DSWYM identified by values 'S:3235CDF0E54B080B04E7DD023CE22857DF7B46FC96C7B3DA5FA59C921789;T:5E7E9AA8FD071614EBA064165AFD5F5D9ABB19490A4FE3F4C6038925C8B9AF7FBBDF7A2BA28F9A3731AE2D16E99B4332180D91E4BB55170208F96F2F5999CDAABE768818C49532DC6CBE8EE5C5968BD5;EDBE20EA11B7230A';
+alter user X3DSWYM_MEDIA identified by values 'S:AD32ABF0B817948D8D7C5F64944334086E905D273B9EE27D5CC335C6F409;T:A4DA6E3DFE39A2AE3B8D580860A44C8A6D31D156FECEEEEB0C9BFF7E6FB5DE1BDBBE55FB4B1F7347265A7BDEA437BBB37303A0A05DF50F1093C31FE89A6371F944F93B3D7CE29CF04B6C9E4E249D1F3A;002152652DEDC985';
+alter user X3DSWYM_WIDGET identified by values 'S:9EAC36721CC74381CDEEFBBB616D424039B8ABD7427CE40A9D45FCEA98DC;T:885AE7901240AB44DB1C50F51F3DC1E2BB2C16389B5A95F48233F899C8A701FD1F65E5F7E5E0C8ED885B92F68001331CD45C56C94B9CE1DB31423DA15956FE2EF62512F8D7FA6239E34DFA41263E9421;BAB262F791D89411';
+
+----------------------------------------
+
+spool sys_privilege_stg4otm.sql
+
+select 'grant '||privilege||' to '||grantee||' ; '  from dba_sys_privs where grantee in (select username from dba_users where username like '%%' ) ;
+
+spool off
+----------------------------------------
+
+select 	to_char(dbms_metadata.get_ddl('USER','PLANT_USER')||';' from dual;
+
+select 'create user '||username||'  identified by values '''||b.password||'''  default tablespace  '||default_tablespace||'  temporary tablespace '||temporary_tablespace||'  profile default ; ' from dba_users a, user$ b ;
+
+-------------------------------------------------------------------------------
+-- Get the number of executions by schemas in a database --
+
+SELECT  PARSING_SCHEMA_NAME, count(*) "Count of distinct SQL", SUM(EXECUTIONS) "Total Executions",
+
+        ROUND(SUM(ELAPSED_TIME)/(60*1000000)) "Total Time (Minutes)", ROUND(SUM(CPU_TIME)/(60*1000000)) "Total CPU time (Minutes)"
+
+FROM SYS.V_$SQLAREA    SQLA
+
+WHERE   LAST_ACTIVE_TIME > sysdate - 1
+
+group by PARSING_SCHEMA_NAME
+
+order by 4 desc;
+
+--------------------------------------------------------------------------------
+
+DECLARE
+l_sql_tune_task_id VARCHAR2(100);
+BEGIN
+l_sql_tune_task_id := DBMS_SQLTUNE.create_tuning_task(
+sql_id => '8g0duu32x40xr',
+scope => DBMS_SQLTUNE.scope_comprehensive,
+time_limit => 300,
+task_name => 'sql_tuning_task_8g0duu32x40xr',
+description => 'Tuning task for sql id 8g0duu32x40xr');
+DBMS_OUTPUT.put_line('Task ID: ' || l_sql_tune_task_id);
+END;
+/
+
+EXEC DBMS_SQLTUNE.execute_tuning_task(task_name => 'sql_tuning_task_8g0duu32x40xr');
+
+SET LONG 65536;
+SET LINESIZE 200;
+SELECT DBMS_SQLTUNE.report_tuning_task('sql_tuning_task_8g0duu32x40xr') FROM dual;
+
+
+select OWNER,JOB_NAME,JOB_TYPE,JOB_ACTION,START_DATE,END_DATE,ENABLED,STATE,RUN_COUNT,FAILURE_COUNT,LAST_START_DATE,LAST_RUN_DURATION,NEXT_RUN_DATE
+from DBA_SCHEDULER_JOBS
+where job_name='GEHC_MONITOR_CHECK_EVENT_JOB';
+
+
+alter session set current_schema=GEMS_PLANTUSER;
+
+begin
+dbms_scheduler.disable('GEHC_MONITOR_CHECK_EVENT_JOB');
+end;
+/
+
+===================================================================================
+
+SELECT RESOURCE_NAME, CURRENT_UTILIZATION, MAX_UTILIZATION, LIMIT_VALUE FROM V$RESOURCE_LIMIT WHERE RESOURCE_NAME IN ( 'sessions', 'processes');
+
+select username,status session_status,count(*) session_count
+from v$session
+where status='INACTIVE' and username is not NULL and username not in ('RDSADMIN','DBSNMP','DBAHC')
+group by username,status;
+
+=====================================================================================
+
+
+SELECT 
+      addr,
+      sleeps
+FROM 
+      v$latch_children c,
+      v$latchname n
+WHERE
+      n.name='cache buffers chains' and
+      c.latch#=n.latch# and
+      sleeps > 100
+ORDER BY sleeps;
+
+
+SELECT file#, dbablk, class, state, TCH
+  FROM X$BH
+  WHERE HLADDR='000000062ACC1CC0'
+  order by TCH desc;
+  
+  
+select owner,object_name,object_type,status
+from dba_objects
+where owner in ('GE_BI_EXTRACTS','GE_MYORDERS','GE_OTM_DJANGO_APP','GE_OTM_RO','GE_POD','GE_TABLEAU','GPRS_TNT_API') and object_type='TRIGGER';
+
+
+
+
+
+
+select 'grant '||decode(table_name,'SYSTEM_SERIAL_REFERENCE_IC','select','IVR_USER_PROFILE','select','EMP_SSO_PIN','select,update,insert,delete','FE_VALIDATION_ALL','select,update,insert,delete')||' on '||'"'||owner||'"'||'.'||'"'||table_name||'"'||' to ILINK_USR;' stmt from dba_tables where table_name in ('SYSTEM_SERIAL_REFERENCE_IC','IVR_USER_PROFILE','EMP_SSO_PIN','FE_VALIDATION_ALL') and owner='AVAYA'; 
+
+
+SELECT
+USERNAME,
+COUNT(*) AS FAILED_LOGINS,
+TRUNC(TIMESTAMP) AS LOGIN_DATE,
+USERHOST,TERMINAL
+FROM DBA_AUDIT_TRAIL
+WHERE RETURNCODE = 1017
+AND TIMESTAMP > SYSDATE - 7
+GROUP BY USERNAME, TRUNC(TIMESTAMP),USERHOST,TERMINAL
+ORDER BY LOGIN_DATE DESC;
+
+
+
+grant ALTER SYSTEM to PDS;
+grant CREATE JOB to PDS;
+grant CREATE VIEW to PDS;
+grant SELECT ANY DICTIONARY to PDS;
+grant CREATE MATERIALIZED VIEW to PDS;
+grant EXECUTE on "SYS"."DBMS_LOCK" to PDS;
+grant EXECUTE on "SYS"."DBMS_JOB" to PDS;
+grant EXECUTE on "SYS"."DBMS_CRYPTO" to PDS;
+grant EXECUTE on "SYS"."UTL_MAIL" to PDS;
+grant RESOURCE to PDS;
+grant CONNECT to PDS;
+
+
+set pages 999 lines 999 echo on feedback on
+spool pdx_ro_role_grants.sql
+select 'grant select on '||owner||'.'||object_name||' to PDX_RO_ROLE;' from dba_objects where owner='PDX' and object_type in ('TABLE','VIEW','SEQUENCE');
+spool off
+@pdx_ro_role_grants.sql
+ 
+create user SSO550001334_PDX identified by "X4!1DFOW2a9xXV" default tablespace USERS temporary tablespace TEMP profile GE_PERSONAL;
+#grant unlimited tablespace to SSO550001334_PDX;
+#alter user SSO550001334_PDX quota unlimited on USERS;
+GRANT CONNECT TO SSO550001334_PDX;
+grant create session TO SSO550001334_PDX;
+grant alter session TO SSO550001334_PDX;
+grant PDX_RO_ROLE to SSO550001334_PDX;
+ 
+spool pdx_pvt_syns.sql
+select 'create or replace synonym SSO550001334_PDX.'|| OBJECT_NAME || ' for '||' PDX.'||object_name ||' ;' from dba_objects where owner='PDX' and object_type not in ('INDEX', 'TRIGGER', 'DATABASE LINK', 'LOB', 'PACKAGE','MATERIALIZED VIEW', 'SYNONYM');
+spool off
+@pdx_pvt_syns.sql
+
+
+select 'grant '||decode(object_type,'PROCEDURE','DEBUG','FUNCTION','DEBUG','PACKAGE','DEBUG','PACKAGE BODY','DEBUG','SELECT')||' on '||'"'||owner||'"'||'.'||'"'||object_name||'"'||' to PDX_RO_ROLE;' from dba_objects where object_type='MATERIALIZED VIEW' and owner='PDX';
+
+
+
+select owner,object_type,count(1)
+from dba_objects
+where owner='SQLLIMSARCHIVESEC'
+group by owner,object_type order by 2;
+
+select grantee,owner,type,privilege,count(1)
+from dba_tab_privs
+where grantee='ARCSEC_RO_ROLE'
+group by grantee,owner,type,privilege order by 3;
+
+select * from dba_role_privs
+where grantee='SSO550001334_ARCSEC';
+
+select 'grant '||decode(object_type,'PROCEDURE','DEBUG','FUNCTION','DEBUG','PACKAGE','DEBUG','PACKAGE BODY','DEBUG','SELECT')||' on '||'"'||owner||'"'||'.'||'"'||object_name||'"'||' to ARCSEC_RO_ROLE;'
+from dba_objects
+where object_type='PROCEDURE' and owner='SQLLIMSARCHIVESEC';
+
+select 'alter system kill session '''||sid||','||serial#||''' immediate;' from v$session where username='DBSNMP' and status='INACTIVE' and machine like '%oem%';
+
+select 'alter system kill session '''||sid||','||serial#||''';' from v$session where username='EC2' and status='INACTIVE';
+
+SET SERVEROUTPUT ON
+SET TIMING ON TERM OFF
+SET HEAD OFF FEED OFF ECHO OFF TRIM OFF
+SPOOL prdec2_inactive_sessions.lst
+DECLARE
+v_sess_cnt number := 0;
+BEGIN
+DBMS_OUTPUT.PUT_LINE('START_TIME: '||SYSTIMESTAMP);
+DBMS_OUTPUT.PUT_LINE(CHR(10));
+
+select count(*) into v_sess_cnt from v$session where username='EC2' and status='INACTIVE';
+
+--DBMS_OUTPUT.PUT_LINE('Total Inactive sessions: '||v_sess_cnt);
+
+DBMS_OUTPUT.PUT_LINE(CHR(10));
+
+IF v_sess_cnt > 10 THEN
+DBMS_OUTPUT.PUT_LINE('Database has '||v_sess_cnt||' inactive sessions.');
+DBMS_OUTPUT.PUT_LINE(CHR(10));
+DBMS_OUTPUT.PUT_LINE('Kindly Raise an RITM to clear these.');
+END IF;
+
+--for i in (select sid,serial# from v$session where username='EC2' and status='INACTIVE') LOOP
+
+--DBMS_OUTPUT.PUT_LINE(q'[Killing session -> ']'||i.sid||','||i.serial#||q'[']');
+--DBMS_OUTPUT.PUT_LINE(CHR(10));
+--EXECUTE IMMEDIATE q'[alter system kill session ']'||i.sid||','||i.serial#||q'[' immediate]';
+--END LOOP;
+DBMS_OUTPUT.PUT_LINE('END_TIME: '||SYSTIMESTAMP);
+END;
+/
+SPOOL OFF;
+EXIT;
+==============================================================================================================================
+fetch user password in script
+
+cat >> get_user_passwords_2.sql << EOF
+SET LONG 10000
+SET PAGESIZE 500
+SET LINESIZE 1000
+SET SERVEROUTPUT ON
+SET ECHO OFF HEAD OFF FEED OFF
+SPOOL user_passwords.sql
+DECLARE
+    CURSOR c_users IS
+        SELECT name, spare4, user$.password
+        FROM sys.user$ join dba_users
+        on (name=username) where account_status='OPEN';
+    v_stmt VARCHAR2(4000);
+	v_counter PLS_INTEGER := 1;
+BEGIN
+    FOR r IN c_users LOOP
+		v_stmt := 'ALTER USER "' || r.name || '" IDENTIFIED BY VALUES ''' || r.spare4 ||';'|| r.password ||''';';
+		DBMS_OUTPUT.PUT_LINE('v_counter||--- DDL for user: ' || r.name || ' ---');
+        DBMS_OUTPUT.PUT_LINE(v_stmt);
+		DBMS_OUTPUT.PUT_LINE(CHR(2));
+		v_counter := v_counter + 1;
+    END LOOP;
+END;
+/
+SPOOL OFF
+EOF
+
+
+ALTER USER "KARTIK" IDENTIFIED BY VALUES 'S:F8104C3739E6E77F3013594FB3CA2FD0507AFE4DEC0F2D7C46B81180BE2C;T:B8055EC501DF50AE9EE33CB3E62CF8D5D8C8D5FFFE454A47D29694765E9A843DA4DEE0F0769E8D281E60C7A0626990C5C89947504EE56B2C3F143FC3F7F09E6583DD64C2983FBC4CFBE0ACF1B45DAF0C;BBD15E8B62C4AD46';
+
+
+SELECT file_id, file_name, tablespace_name,
+       bytes/1024/1024/1024 AS size_gb,
+       blocks,
+AUTOEXTENSIBLE,
+       (SELECT MAX(block_id) FROM dba_extents WHERE file_id = df.file_id) AS high_watermark_block
+FROM dba_data_files df
+WHERE tablespace_name='LOB7'
+ORDER BY 1;
+
+SELECT fsp.tablespace_name, file_id,file_name,fsp.bytes/1024/1024/1024 AS size_gb
+FROM dba_free_space fsp join dba_data_files df using (file_id)
+WHERE fsp.tablespace_name='LOB7'
+ORDER BY file_id;
+
+--------------------------------------------------------------------------------------------------
+
+-- Tablespace-level capacity and free space (Permanent tablespaces)
+SELECT
+    dfs.tablespace_name,
+    ROUND(SUM(dfs.bytes)/1024/1024, 2) AS total_mb,
+    ROUND(SUM(dfs.bytes - NVL(free.free_bytes, 0))/1024/1024, 2) AS used_mb,
+    ROUND(SUM(NVL(free.free_bytes, 0))/1024/1024, 2) AS free_mb,
+    ROUND((SUM(NVL(free.free_bytes, 0))/SUM(dfs.bytes))*100, 2) AS pct_free
+FROM (
+    SELECT tablespace_name, file_id, bytes FROM dba_data_files
+) dfs
+LEFT JOIN (
+    SELECT tablespace_name, file_id, SUM(bytes) AS free_bytes
+    FROM dba_free_space
+    GROUP BY tablespace_name, file_id
+) free
+ON free.tablespace_name = dfs.tablespace_name
+AND free.file_id = dfs.file_id
+GROUP BY dfs.tablespace_name
+ORDER BY dfs.tablespace_name;
+
+
+-- HWM per datafile: highest allocated block number
+-- Requires DBA privileges
+SELECT
+  de.file_id,
+  ddf.file_name,
+  ddf.tablespace_name,
+  MAX(de.block_id + de.blocks) AS hwm_block
+FROM dba_extents de
+JOIN dba_data_files ddf
+  ON ddf.file_id = de.file_id
+WHERE ddf.tablespace_name='EPOP3_ORACLE'
+GROUP BY de.file_id, ddf.file_name, ddf.tablespace_name
+ORDER BY de.file_id;
+
+
+WITH hwm AS (
+  SELECT file_id, MAX(block_id + blocks) AS hwm_block
+  FROM dba_extents
+  GROUP BY file_id
+),
+bs AS (
+  SELECT value AS block_size FROM v$parameter WHERE name = 'db_block_size'
+)
+SELECT
+  d.file_id,
+  d.file_name,
+  ROUND(d.bytes/1024/1024, 2) AS current_size_mb,
+  ROUND(NVL(h.hwm_block, 1) * (SELECT block_size FROM bs) / 1024 / 1024, 2) AS hwm_size_mb,
+  ROUND((NVL(h.hwm_block, 1) * (SELECT block_size FROM bs) + 64*1024*1024) / 1024 / 1024, 2) AS suggested_resize_mb
+FROM dba_data_files d
+LEFT JOIN hwm h ON h.file_id = d.file_id
+ORDER BY d.file_id;
+
+SELECT inst_id AS node,
+       username,
+       status,
+       COUNT(*) AS session_count
+FROM   gv$session
+GROUP  BY rollup(inst_id, username, status)
+ORDER  BY inst_id, username;
+
+Cmd to restore archive logs on RDS - 
+ 
+SELECT rdsadmin.rdsadmin_archive_log_download.download_logs_in_seqnum_range(start_seq => 3271500, end_seq => 3271550) AS TASK_ID FROM DUAL;
+
+select 'revoke '||privilege||' on '||owner||'.'||table_name||' from SSO212721810;' from dba_tab_privs where privilege='SELECT' and owner='AUTOSC';
+
+select username, account_status from dba_users where username like '%212721810%';
+
+select 'revoke select on '||owner||'.'||table_name||' from '||grantee||';' from dba_tab_privs where owner='ILINQ' and grantee='SSO503390977';
+
+select name,open_mode from v$database;
+
+select grantee,privilege,table_name,owner from DBA_TAB_PRIVS where owner='ILINQ' and grantee='SSO503390977';
+
+select grantee,privilege from DBA_SYS_PRIVS where PRIVILEGE in ('CREATE SESSION') and grantee='SSO503390977';
+
+select grantee,granted_role from DBA_ROLE_PRIVS where granted_role in ('GSCCREAD') and grantee='SSO503290307';
+
+select 'grant select,insert,update,delete on "' ||owner||'"."'||object_name||'" to SSO503297959;' from dba_objects where owner in ('CPESIT', 'CPEUAT', 'CPEQA') and object_type in ('TABLE','VIEW');
+
+select 'grant select on "' ||owner||'"."'||object_name||'" to SSO503297959;' from dba_objects where owner in ('CPE') and object_type in ('TABLE','VIEW');
+
+select 'grant execute on "' ||owner||'"."'||object_name||'" to SSO503297959;' from dba_objects where owner in ('CPESIT', 'CPEUAT', 'CPEQA', 'CPE') and object_type in ('PACKAGE','FUNCTION','PROCEDURE','TYPE');
+
+select 'grant select on "' ||owner||'"."'||object_name||'" to SSO503297959;' from dba_objects where owner in ('CPESIT', 'CPEUAT', 'CPEQA', 'CPE') and object_type in ('SEQUENCE');
+
+----------------------
+
+# Total number of DML executions by a user
+
+
+SELECT
+  TRUNC(sn.begin_interval_time) AS day,
+  c.command_name,
+  SUM(ss.executions_delta) AS dml_exec
+FROM
+  dba_hist_sqlstat ss
+  JOIN dba_hist_snapshot sn
+    ON sn.dbid = ss.dbid
+   AND sn.instance_number = ss.instance_number
+   AND sn.snap_id = ss.snap_id
+  JOIN v$sql sq
+    ON sq.sql_id = ss.sql_id
+  JOIN v$sqlcommand c
+    ON c.command_type = sq.command_type
+WHERE
+  sn.begin_interval_time >= SYSDATE - 7
+  AND ss.parsing_user_id = (SELECT user_id FROM dba_users WHERE username = :username)
+  AND c.command_name IN ('INSERT','UPDATE','DELETE','MERGE')
+GROUP BY
+  TRUNC(sn.begin_interval_time),c.command_name
+ORDER BY
+  day,command_name;
+  
+  
+ ======================================================
+ 
+ Kill RDS sessions dynamic script:
+ 
+ select 'BEGIN 
+rdsadmin.rdsadmin_util.kill( sid => '||sid||', serial => '||serial#||', method => '||'''IMMEDIATE'''
+||');
+END;
+/'
+from v$session join dba_users using (username)
+where username not in ('RDSADMIN','DBAHC','DBSNMP','SYS')
+and oracle_maintained='N'
+and status='INACTIVE';
+
+ALTER TABLE "EC2"."LXUNIT_38043C1D" ADD CONSTRAINT "LXUNIT_38043C1D_LXOID_FK" FOREIGN KEY ("LXOID") REFERENCES "EC2"."LXOID_38043C1D" ("LXOID") ENABLE NOVALIDATE;
+ORA-39083: Object type REF_CONSTRAINT:"EC2"."LXBOOL_10D7AFD5_LXOID_FK" failed to create with error:
+ORA-02298: cannot validate (EC2.LXBOOL_10D7AFD5_LXOID_FK) - parent keys not found
+
+Failing sql is:
+ALTER TABLE "EC2"."LXBOOL_10D7AFD5" ADD CONSTRAINT "LXBOOL_10D7AFD5_LXOID_FK" FOREIGN KEY ("LXOID") REFERENCES "EC2"."LXOID_10D7AFD5" ("LXOID") ENABLE
+ORA-39083: Object type REF_CONSTRAINT:"EC2"."LXINT_10D7AFD5_LXOID_FK" failed to create with error:
+ORA-02298: cannot validate (EC2.LXINT_10D7AFD5_LXOID_FK) - parent keys not found
+
+Failing sql is:
+ALTER TABLE "EC2"."LXINT_10D7AFD5" ADD CONSTRAINT "LXINT_10D7AFD5_LXOID_FK" FOREIGN KEY ("LXOID") REFERENCES "EC2"."LXOID_10D7AFD5" ("LXOID") ENABLE
+ORA-39083: Object type REF_CONSTRAINT:"EC2"."LXSDESC_38043C1D_LXOID_FK" failed to create with error:
+ORA-02298: cannot validate (EC2.LXSDESC_38043C1D_LXOID_FK) - parent keys not found
+
+Failing sql is:
+ALTER TABLE "EC2"."LXSDESC_38043C1D" ADD CONSTRAINT "LXSDESC_38043C1D_LXOID_FK" FOREIGN KEY ("LXOID") REFERENCES "EC2"."LXOID_38043C1D" ("LXOID") ENABLE
+ORA-39083: Object type REF_CONSTRAINT:"EC2"."MXOV_MXOID_FK" failed to create with error:
+ORA-02298: cannot validate (EC2.MXOV_MXOID_FK) - parent keys not found
+
+Failing sql is:
+ALTER TABLE "EC2"."MXOV" ADD CONSTRAINT "MXOV_MXOID_FK" FOREIGN KEY ("MXOID") REFERENCES "EC2"."MXOID" ("MXOID") ENABLE
+ORA-39083: Object type REF_CONSTRAINT:"EC2"."LXREAL_10D7AFD5_LXOID_FK" failed to create with error:
+ORA-02298: cannot validate (EC2.LXREAL_10D7AFD5_LXOID_FK) - parent keys not found
+
+select
+s.sid,
+s.serial#,
+s.username,
+s.status,
+s.program,
+p.spid as unix_pid,
+s.machine,
+s.osuser
+from
+v$session s
+join
+v$process p
+on
+s.paddr = p.addr
+where
+p.spid='1155106';
+
+       305       2634 SYSADM                         ACTIVE
+PSAESRV.exe                                      1155106
+HCAD\win-ps-poc3-2LH
+SYSTEM
+
+
+select owner,segment_name,sum(bytes)/1024/1024 MB from dba_segments where owner='PDS' and segment_type='TABLE' and segment_name in ('GE_INBD_SPM_PLN_LVL',
+'GE_INBD_SPM_ONHAND_BALANCE',
+'GE_INBD_SPM_LOCATION',
+'GEHC_KINAXIS_TMP',
+'GE_INBD_PLAN_ORDER',
+'GE_SPM_SUPP_FRCST_PO_DETAILS',
+'GE_SPM_GLP_PART_DEMAND_OPEN',
+'GE_INBD_SPM_DMD_FORECAST')
+group by owner,segment_name;
+
+oR2A?_SPDKi0c=
+
+oramke1p
+
+
+SET SERVEROUTPUT ON
+DECLARE
+l_cnt NUMBER;
+BEGIN
+FOR r IN (SELECT owner,table_name
+FROM dba_tables
+WHERE owner = 'PDS' and table_name in ('GE_INBD_SPM_PLN_LVL',
+'GE_INBD_SPM_ONHAND_BALANCE',
+'GE_INBD_SPM_LOCATION',
+'GEHC_KINAXIS_TMP',
+'GE_INBD_PLAN_ORDER',
+'GE_SPM_SUPP_FRCST_PO_DETAILS',
+'GE_SPM_GLP_PART_DEMAND_OPEN',
+'GE_INBD_SPM_DMD_FORECAST')) LOOP
+EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM '||r.owner||'.'||r.table_name INTO l_cnt;
+DBMS_OUTPUT.PUT_LINE(r.table_name || ' -> ' || l_cnt);
+END LOOP;
+END;
+/
+
+
+$ORACLE_HOME/bin/sqlplus /nolog << EOF &>> gather_stats.log &
+connect / as sysdba
+spool gather_stats.lst
+SET SERVEROUTPUT ON
+SET TIMING ON
+SET HEAD OFF FEED OFF
+BEGIN
+DBMS_OUTPUT.PUT_LINE(SYSTIMESTAMP);
+DBMS_STATS.GATHER_DATABASE_STATS(estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE, method_opt => 'FOR ALL COLUMNS SIZE AUTO', degree => DBMS_STATS.AUTO_DEGREE, cascade => TRUE);
+DBMS_OUTPUT.PUT_LINE(SYSTIMESTAMP);
+END;
+/
+spool off
+EOF
+
+
+
+
+EXEC DBMS_STATS.GATHER_TABLE_STATS('PDS','GE_INBD_SPM_DMD_FORECAST'
+);
+
+SELECT sql_id, child_number, reason
+FROM v$sql_shared_cursor;
+
+Why too many child cursors occur
+Difference between bind peeking and adaptive cursor sharing
+When bind variables can hurt performance
+Why literals sometimes perform better (edge cases)
+
+oc$P7b+[1E0$p_
+
+SELECT * FROM emp 
+WHERE empno = :B_0
+AND   deptno = :B_1;
+
+Does oracle 19c use any hashing algorithm to create sql text hash?
+------------------------------------------------------------------------
+Check the changes in init parameters
+
+SELECT
+    s.begin_interval_time,
+    p.parameter_name,
+    p.value/1024/1024 AS value_mb
+FROM dba_hist_parameter p
+JOIN dba_hist_snapshot s
+  ON p.snap_id = s.snap_id
+ AND p.dbid    = s.dbid
+ AND p.instance_number = s.instance_number
+WHERE p.parameter_name = 'pga_aggregate_limit'
+ORDER BY s.begin_interval_time;
+
+------------------------------------------------------------------------
+Check the executions of  sql query
+SELECT
+    sql_id,
+    executions,
+    round(elapsed_time/1e6,2) AS elapsed_sec,
+    round(cpu_time/1e6,2) AS cpu_sec,
+    buffer_gets,
+    disk_reads,
+    last_active_time
+FROM v$sql
+WHERE sql_id = 'bpnz7wqw2srk5';
+
+SET SERVEROUTPUT ON;
+SET TERM OFF
+SET FEED OFF ECHO OFF TRIM OFF
+SPOOL CHG0143950_prd4otm_supplemental_log_access.lst
+SELECT name,db_unique_name,open_mode,database_role from v$database;
+DECLARE
+l_success BOOLEAN := TRUE;
+BEGIN
+DBMS_OUTPUT.PUT_LINE(CHR(10));
+FOR t in (select table_name from dba_tables where owner='GLOGOWNER' and table_name in ('CAPACITY_COMMITMENT_ALLOC_D_T',
+'CAPACITY_COMMITMENT_ALLOC_T',
+'CAPACITY_COMMITMENT_T',
+'CAPACITY_GROUP_T',
+'DIM_RATE_FACTOR_T',
+'ACTIVITY_CALENDAR_OVERRIDE_T',
+'EQUIPMENT_GROUP_PROFILE_D_T',
+'EQUIPMENT_GROUP_PROFILE_T',
+'EXCHANGE_RATE_T',
+'ITINERARY_DETAIL_T',
+'ITINERARY_PROFILE_D_T',
+'ITINERARY_PROFILE_T',
+'ITINERARY_T',
+'LOCATION_CORPORATION_T',
+'RATE_DISTANCE_T',
+'RATE_FACTOR_RULE_DETAIL_T',
+'RATE_FACTOR_RULE_JOIN_T',
+'RATE_FACTOR_RULE_T',
+'RATE_FACTOR_RULE_VALUE_BREAK_T',
+'RATE_FACTOR_T',
+'RATE_OFFERING_ACCESSORIAL_T',
+'RATE_OFFERING_REMARK_T',
+'RATE_PREFERENCE_DETAIL_T',
+'RATE_PREFERENCE_T',
+'RATE_QUALITY_T',
+'RATE_SERVICE_PROFILE_D_T',
+'RATE_SERVICE_PROFILE_T',
+'RATE_UNIT_BREAK_T',
+'RATE_ZONE_PROFILE_D_T',
+'RATE_ZONE_PROFILE_T',
+'REGION_GROUP_D_T',
+'REGION_GROUP_T',
+'REGION_T',
+'RG_SPECIAL_SERVICE_T',
+'SERVPROV_PROFILE_DETAIL_T',
+'SERVPROV_PROFILE_T',
+'SHIPMENT_SPECIAL_SERVICE_T',
+'SPECIAL_SERVICE_PROFILE_D_T',
+'SPECIAL_SERVICE_PROFILE_T',
+'SPECIAL_SERVICE_T',
+'ACCESSORIAL_COST_UNIT_BREAK',
+'ACCESSORIAL_COST_T',
+'CAPACITY_LIMIT_T',
+'RO_SPECIAL_SERVICE_T',
+'ACCESSORIAL_DEFAULT_T',
+'SHIP_GROUP_D_T',
+'SHIP_GROUP_T'
+)) LOOP
+BEGIN
+--EXECUTE IMMEDIATE 'ALTER TABLE "GLOGOWNER"."'||t.table_name||'" ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS';
+DBMS_OUTPUT.PUT_LINE('ENABLING SUPPLEMENTAL LOG ACCESS ON TABLE -> "GLOGOWNER"."'||t.table_name||'"');
+EXCEPTION
+WHEN OTHERS THEN
+l_success := FALSE;
+DBMS_OUTPUT.PUT_LINE('Error enabling supplemental log access for table "GLOGOWNER"."'||t.table_name||'": '||SQLERRM);
+END;
+IF l_success THEN
+DBMS_OUTPUT.PUT_LINE('SUPPLEMENTAL LOG ACCESS GRANTED SUCCESSFULLY ON TABLE -> "GLOGOWNER"."'||t.table_name||'"');
+END IF;
+DBMS_OUTPUT.PUT_LINE(CHR(10));
+END LOOP;
+END;
+/
+SPOOL OFF;
+EXIT;
+
+
+SET SERVEROUTPUT ON;
+SET TERM OFF
+SET FEED OFF ECHO OFF TRIM OFF
+SPOOL CHG0143947_stg4otm_supplemental_log_access.lst
+SELECT name,db_unique_name,open_mode,database_role from v$database;
+DECLARE
+l_success BOOLEAN := TRUE;
+BEGIN
+DBMS_OUTPUT.PUT_LINE(CHR(10));
+FOR t in (select table_name from dba_tables where owner='GLOGOWNER' and table_name in ('ACCESSORIAL_DEFAULT_T',
+'SHIP_GROUP_D_T',
+'SHIP_GROUP_T'
+)) LOOP
+BEGIN
+--EXECUTE IMMEDIATE 'ALTER TABLE "GLOGOWNER"."'||t.table_name||'" ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS';
+DBMS_OUTPUT.PUT_LINE('ENABLING SUPPLEMENTAL LOG ACCESS ON TABLE -> '||t.table_name);
+EXCEPTION
+WHEN OTHERS THEN
+l_success := FALSE;
+DBMS_OUTPUT.PUT_LINE('Error enabling supplemental log access for table '||t.table_name||': '||SQLERRM);
+END;
+IF l_success THEN
+DBMS_OUTPUT.PUT_LINE('SUPPLEMENTAL LOG ACCESS GRANTED SUCCESSFULLY ON TABLE -> '||t.table_name);
+END IF;
+DBMS_OUTPUT.PUT_LINE(CHR(10));
+END LOOP;
+END;
+/
+SPOOL OFF;
+EXIT;
+
+SELECT os_username,
+	   username,
+       userhost,
+       returncode,
+       timestamp,
+	   ACTION_NAME,
+	   LOGOFF_TIME,
+	   OS_PROCESS
+FROM dba_audit_session
+WHERE username = 'SSO212601918'
+ORDER BY timestamp DESC;
+
+SELECT event_timestamp,
+       DBUSERNAME,
+       userhost,
+       return_code
+FROM unified_audit_trail
+WHERE DBUSERNAME = 'SSO212601918'
+  AND event_timestamp < (
+        SELECT lock_date
+        FROM dba_users
+        WHERE DBUSERNAME = 'SSO212601918'
+      )
+ORDER BY event_timestamp DESC;
